@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Body,
   Version,
   UseGuards,
@@ -30,6 +31,7 @@ import {
 import { VerifyEmailDto } from './dto/verify-email.dto.js';
 import { ResendOtpDto } from './dto/resend-otp.dto.js';
 import { SetUsernameDto } from './dto/set-username.dto.js';
+import { UpdateProfileDto } from './dto/update-profile.dto.js';
 import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
 
 @ApiTags('auth')
@@ -115,6 +117,19 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   profile(@Request() req: any) {
     return this.authService.getProfile(req.user.id);
+  }
+
+  @Patch('profile')
+  @Version('1')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Update the authenticated user profile (name/username)' })
+  @ApiBody({ type: UpdateProfileDto })
+  @ApiResponse({ status: 200, description: 'Profile updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 409, description: 'Username already taken' })
+  updateProfile(@Request() req: any, @Body() dto: UpdateProfileDto) {
+    return this.authService.updateProfile(req.user.id, dto);
   }
 
   @Post('logout')

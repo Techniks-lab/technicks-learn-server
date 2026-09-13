@@ -14,6 +14,7 @@ import { BrevoService } from './email/brevo.service.js';
 import { OtpRateLimiter } from './otp-rate-limiter.service.js';
 import { RegisterDto } from './dto/register.dto.js';
 import { LoginDto } from './dto/login.dto.js';
+import { UpdateProfileDto } from './dto/update-profile.dto.js';
 import {
   ChangePasswordDto,
   ResetPasswordDto,
@@ -255,6 +256,53 @@ export class AuthService {
       updatedAt: user.updatedAt,
       lastActiveAt: user.lastActiveAt,
     };
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    const user = await this.prisma.orm.public.User.where({ id: userId }).first();
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const data: { fullName?: string; username?: string } = {};
+
+    if (dto.username !== undefined && dto.username !== user.username) {
+      const taken = await this.prisma.orm.public.User.where({
+        username: dto.username,
+      }).first();
+
+      if (taken && taken.id !== userId) {
+        throw new ConflictException('Username already taken');
+      }
+
+      data.username = dto.username;
+    }
+
+    if (dto.fullName !== undefined && dto.fullName !== user.fullName) {
+      data.fullName = dto.fullName;
+    }
+
+    if (Object.keys(data).length > 0) {
+      await this.prisma.orm.public.User.where({ id: userId }).update(data);
+    }
+
+    const profile = await this.getProfile(userId);
+
+    if (data.username) {
+      // The JWT carries the username claim — rotate tokens for this session
+      // only so the new username takes effect immediately.
+      const tokens = await this.generateTokens(
+        profile.id,
+        profile.email,
+        profile.username,
+        profile.role,
+      );
+
+      return { user: profile, ...tokens };
+    }
+
+    return { user: profile };
   }
 
   async verifyEmail(dto: VerifyEmailDto) {

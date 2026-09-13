@@ -1,0 +1,287 @@
+[
+  {
+    "id": "table.courseCategory",
+    "label": "Create table \"courseCategory\"",
+    "summary": "Creates table \"courseCategory\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "courseCategory"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"courseCategory\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"courseCategory\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"courseCategory\"",
+        "sql": "CREATE TABLE \"public\".\"courseCategory\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"name\" text NOT NULL,\n  \"slug\" text NOT NULL,\n  \"updatedAt\" timestamptz DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"courseCategory\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"courseCategory\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.course.categoryId",
+    "label": "Add column \"categoryId\" to \"course\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "categoryId",
+        "table": "course"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"categoryId\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "course",
+          "categoryId"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"categoryId\"",
+        "sql": "ALTER TABLE \"public\".\"course\" ADD COLUMN \"categoryId\" uuid"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"categoryId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "course",
+          "categoryId"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.courseCategory.courseCategory_name_key",
+    "label": "Add unique constraint on \"courseCategory\" (name)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "courseCategory_name_key",
+        "table": "courseCategory"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"courseCategory_name_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "courseCategory_name_key",
+          "public",
+          "\"public\".\"courseCategory\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"courseCategory_name_key\"",
+        "sql": "ALTER TABLE \"public\".\"courseCategory\" ADD CONSTRAINT \"courseCategory_name_key\" UNIQUE (\"name\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"courseCategory_name_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "courseCategory_name_key",
+          "public",
+          "\"public\".\"courseCategory\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.courseCategory.courseCategory_slug_key",
+    "label": "Add unique constraint on \"courseCategory\" (slug)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "courseCategory_slug_key",
+        "table": "courseCategory"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"courseCategory_slug_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "courseCategory_slug_key",
+          "public",
+          "\"public\".\"courseCategory\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"courseCategory_slug_key\"",
+        "sql": "ALTER TABLE \"public\".\"courseCategory\" ADD CONSTRAINT \"courseCategory_slug_key\" UNIQUE (\"slug\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"courseCategory_slug_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "courseCategory_slug_key",
+          "public",
+          "\"public\".\"courseCategory\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.course.course_categoryId_idx_15c304f2",
+    "label": "Create index \"course_categoryId_idx_15c304f2\" on \"course\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "course_categoryId_idx_15c304f2",
+        "table": "course"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"course_categoryId_idx_15c304f2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"course_categoryId_idx_15c304f2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"course_categoryId_idx_15c304f2\"",
+        "sql": "CREATE INDEX \"course_categoryId_idx_15c304f2\" ON \"public\".\"course\" (\"categoryId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"course_categoryId_idx_15c304f2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"course_categoryId_idx_15c304f2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.courseCategory.courseCategory_name_idx_ce87e6ba",
+    "label": "Create index \"courseCategory_name_idx_ce87e6ba\" on \"courseCategory\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "courseCategory_name_idx_ce87e6ba",
+        "table": "courseCategory"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"courseCategory_name_idx_ce87e6ba\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"courseCategory_name_idx_ce87e6ba\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"courseCategory_name_idx_ce87e6ba\"",
+        "sql": "CREATE INDEX \"courseCategory_name_idx_ce87e6ba\" ON \"public\".\"courseCategory\" (\"name\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"courseCategory_name_idx_ce87e6ba\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"courseCategory_name_idx_ce87e6ba\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.course.course_categoryId_fkey",
+    "label": "Add foreign key \"course_categoryId_fkey\" on \"course\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "course_categoryId_fkey",
+        "table": "course"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"course_categoryId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "course_categoryId_fkey",
+          "public",
+          "\"public\".\"course\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"course_categoryId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"course\"\nADD CONSTRAINT \"course_categoryId_fkey\"\nFOREIGN KEY (\"categoryId\")\nREFERENCES \"public\".\"courseCategory\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"course_categoryId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "course_categoryId_fkey",
+          "public",
+          "\"public\".\"course\""
+        ]
+      }
+    ]
+  }
+]

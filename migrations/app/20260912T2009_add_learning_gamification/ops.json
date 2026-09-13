@@ -1,0 +1,1172 @@
+[
+  {
+    "id": "table.checkIn",
+    "label": "Create table \"checkIn\"",
+    "summary": "Creates table \"checkIn\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "checkIn"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"checkIn\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"checkIn\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"checkIn\"",
+        "sql": "CREATE TABLE \"public\".\"checkIn\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"date\" text NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"userId\" uuid NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"checkIn\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"checkIn\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.competition",
+    "label": "Create table \"competition\"",
+    "summary": "Creates table \"competition\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "competition"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"competition\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"competition\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"competition\"",
+        "sql": "CREATE TABLE \"public\".\"competition\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"endsAt\" timestamptz NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"startsAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"competition\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"competition\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.competitionMember",
+    "label": "Create table \"competitionMember\"",
+    "summary": "Creates table \"competitionMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "competitionMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"competitionMember\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"competitionMember\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"competitionMember\"",
+        "sql": "CREATE TABLE \"public\".\"competitionMember\" (\n  \"competitionId\" uuid NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"joinedAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"points\" int4 DEFAULT 0 NOT NULL,\n  \"userId\" uuid NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"competitionMember\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"competitionMember\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.lesson",
+    "label": "Create table \"lesson\"",
+    "summary": "Creates table \"lesson\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "lesson"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"lesson\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lesson\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"lesson\"",
+        "sql": "CREATE TABLE \"public\".\"lesson\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"description\" text,\n  \"id\" uuid NOT NULL,\n  \"slug\" text NOT NULL,\n  \"sortOrder\" int4 DEFAULT 0 NOT NULL,\n  \"status\" text DEFAULT 'DRAFT' NOT NULL,\n  \"title\" text NOT NULL,\n  \"updatedAt\" timestamptz DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"lesson_status_check_1b4a7b6b\" CHECK (\"status\" IN ('DRAFT', 'PUBLISHED'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"lesson\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lesson\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.lessonBlock",
+    "label": "Create table \"lessonBlock\"",
+    "summary": "Creates table \"lessonBlock\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "lessonBlock"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"lessonBlock\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonBlock\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"lessonBlock\"",
+        "sql": "CREATE TABLE \"public\".\"lessonBlock\" (\n  \"blockIndex\" int4 DEFAULT 0 NOT NULL,\n  \"caption\" text,\n  \"id\" uuid NOT NULL,\n  \"kind\" text NOT NULL,\n  \"lessonId\" uuid NOT NULL,\n  \"text\" text,\n  \"url\" text,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"lessonBlock_kind_check_710f4413\" CHECK (\"kind\" IN ('HEADING', 'TEXT', 'IMAGE', 'VIDEO'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"lessonBlock\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonBlock\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.lessonCompletion",
+    "label": "Create table \"lessonCompletion\"",
+    "summary": "Creates table \"lessonCompletion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "lessonCompletion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"lessonCompletion\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonCompletion\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"lessonCompletion\"",
+        "sql": "CREATE TABLE \"public\".\"lessonCompletion\" (\n  \"completedAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"lessonId\" uuid NOT NULL,\n  \"userId\" uuid NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"lessonCompletion\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonCompletion\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.xpEvent",
+    "label": "Create table \"xpEvent\"",
+    "summary": "Creates table \"xpEvent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "xpEvent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"xpEvent\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"xpEvent\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"xpEvent\"",
+        "sql": "CREATE TABLE \"public\".\"xpEvent\" (\n  \"amount\" int4 NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"source\" text NOT NULL,\n  \"userId\" uuid NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"xpEvent_source_check_41c470cd\" CHECK (\"source\" IN ('DAILY_CHECK_IN', 'LESSON_COMPLETED'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"xpEvent\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"xpEvent\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.user.xp",
+    "label": "Add column \"xp\" to \"user\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "xp",
+        "table": "user"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"xp\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "user",
+          "xp"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"xp\"",
+        "sql": "ALTER TABLE \"public\".\"user\" ADD COLUMN \"xp\" int4 DEFAULT 0 NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"xp\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "user",
+          "xp"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.checkIn.checkIn_userId_date_key",
+    "label": "Add unique constraint on \"checkIn\" (userId, date)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "checkIn_userId_date_key",
+        "table": "checkIn"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"checkIn_userId_date_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "checkIn_userId_date_key",
+          "public",
+          "\"public\".\"checkIn\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"checkIn_userId_date_key\"",
+        "sql": "ALTER TABLE \"public\".\"checkIn\" ADD CONSTRAINT \"checkIn_userId_date_key\" UNIQUE (\"userId\", \"date\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"checkIn_userId_date_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "checkIn_userId_date_key",
+          "public",
+          "\"public\".\"checkIn\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.competition.competition_startsAt_endsAt_key",
+    "label": "Add unique constraint on \"competition\" (startsAt, endsAt)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "competition_startsAt_endsAt_key",
+        "table": "competition"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"competition_startsAt_endsAt_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "competition_startsAt_endsAt_key",
+          "public",
+          "\"public\".\"competition\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"competition_startsAt_endsAt_key\"",
+        "sql": "ALTER TABLE \"public\".\"competition\" ADD CONSTRAINT \"competition_startsAt_endsAt_key\" UNIQUE (\"startsAt\", \"endsAt\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"competition_startsAt_endsAt_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "competition_startsAt_endsAt_key",
+          "public",
+          "\"public\".\"competition\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.competitionMember.competitionMember_competitionId_userId_key",
+    "label": "Add unique constraint on \"competitionMember\" (competitionId, userId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "competitionMember_competitionId_userId_key",
+        "table": "competitionMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"competitionMember_competitionId_userId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "competitionMember_competitionId_userId_key",
+          "public",
+          "\"public\".\"competitionMember\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"competitionMember_competitionId_userId_key\"",
+        "sql": "ALTER TABLE \"public\".\"competitionMember\" ADD CONSTRAINT \"competitionMember_competitionId_userId_key\" UNIQUE (\"competitionId\", \"userId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"competitionMember_competitionId_userId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "competitionMember_competitionId_userId_key",
+          "public",
+          "\"public\".\"competitionMember\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.lesson.lesson_slug_key",
+    "label": "Add unique constraint on \"lesson\" (slug)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "lesson_slug_key",
+        "table": "lesson"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"lesson_slug_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lesson_slug_key",
+          "public",
+          "\"public\".\"lesson\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"lesson_slug_key\"",
+        "sql": "ALTER TABLE \"public\".\"lesson\" ADD CONSTRAINT \"lesson_slug_key\" UNIQUE (\"slug\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"lesson_slug_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lesson_slug_key",
+          "public",
+          "\"public\".\"lesson\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.lessonCompletion.lessonCompletion_userId_lessonId_key",
+    "label": "Add unique constraint on \"lessonCompletion\" (userId, lessonId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "lessonCompletion_userId_lessonId_key",
+        "table": "lessonCompletion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"lessonCompletion_userId_lessonId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessonCompletion_userId_lessonId_key",
+          "public",
+          "\"public\".\"lessonCompletion\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"lessonCompletion_userId_lessonId_key\"",
+        "sql": "ALTER TABLE \"public\".\"lessonCompletion\" ADD CONSTRAINT \"lessonCompletion_userId_lessonId_key\" UNIQUE (\"userId\", \"lessonId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"lessonCompletion_userId_lessonId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessonCompletion_userId_lessonId_key",
+          "public",
+          "\"public\".\"lessonCompletion\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.checkIn.checkIn_userId_idx_a489d58a",
+    "label": "Create index \"checkIn_userId_idx_a489d58a\" on \"checkIn\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "checkIn_userId_idx_a489d58a",
+        "table": "checkIn"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"checkIn_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"checkIn_userId_idx_a489d58a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"checkIn_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"checkIn_userId_idx_a489d58a\" ON \"public\".\"checkIn\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"checkIn_userId_idx_a489d58a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"checkIn_userId_idx_a489d58a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.competitionMember.competitionMember_competitionId_idx_53fccd3b",
+    "label": "Create index \"competitionMember_competitionId_idx_53fccd3b\" on \"competitionMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "competitionMember_competitionId_idx_53fccd3b",
+        "table": "competitionMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"competitionMember_competitionId_idx_53fccd3b\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"competitionMember_competitionId_idx_53fccd3b\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"competitionMember_competitionId_idx_53fccd3b\"",
+        "sql": "CREATE INDEX \"competitionMember_competitionId_idx_53fccd3b\" ON \"public\".\"competitionMember\" (\"competitionId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"competitionMember_competitionId_idx_53fccd3b\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"competitionMember_competitionId_idx_53fccd3b\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.competitionMember.competitionMember_userId_idx_a489d58a",
+    "label": "Create index \"competitionMember_userId_idx_a489d58a\" on \"competitionMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "competitionMember_userId_idx_a489d58a",
+        "table": "competitionMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"competitionMember_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"competitionMember_userId_idx_a489d58a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"competitionMember_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"competitionMember_userId_idx_a489d58a\" ON \"public\".\"competitionMember\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"competitionMember_userId_idx_a489d58a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"competitionMember_userId_idx_a489d58a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.lesson.lesson_sortOrder_idx_ebf2eac2",
+    "label": "Create index \"lesson_sortOrder_idx_ebf2eac2\" on \"lesson\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "lesson_sortOrder_idx_ebf2eac2",
+        "table": "lesson"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"lesson_sortOrder_idx_ebf2eac2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lesson_sortOrder_idx_ebf2eac2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"lesson_sortOrder_idx_ebf2eac2\"",
+        "sql": "CREATE INDEX \"lesson_sortOrder_idx_ebf2eac2\" ON \"public\".\"lesson\" (\"sortOrder\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"lesson_sortOrder_idx_ebf2eac2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lesson_sortOrder_idx_ebf2eac2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.lesson.lesson_status_idx_e98638ab",
+    "label": "Create index \"lesson_status_idx_e98638ab\" on \"lesson\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "lesson_status_idx_e98638ab",
+        "table": "lesson"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"lesson_status_idx_e98638ab\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lesson_status_idx_e98638ab\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"lesson_status_idx_e98638ab\"",
+        "sql": "CREATE INDEX \"lesson_status_idx_e98638ab\" ON \"public\".\"lesson\" (\"status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"lesson_status_idx_e98638ab\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lesson_status_idx_e98638ab\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.lessonBlock.lessonBlock_lessonId_idx_e358970d",
+    "label": "Create index \"lessonBlock_lessonId_idx_e358970d\" on \"lessonBlock\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "lessonBlock_lessonId_idx_e358970d",
+        "table": "lessonBlock"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"lessonBlock_lessonId_idx_e358970d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonBlock_lessonId_idx_e358970d\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"lessonBlock_lessonId_idx_e358970d\"",
+        "sql": "CREATE INDEX \"lessonBlock_lessonId_idx_e358970d\" ON \"public\".\"lessonBlock\" (\"lessonId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"lessonBlock_lessonId_idx_e358970d\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonBlock_lessonId_idx_e358970d\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.lessonCompletion.lessonCompletion_lessonId_idx_e358970d",
+    "label": "Create index \"lessonCompletion_lessonId_idx_e358970d\" on \"lessonCompletion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "lessonCompletion_lessonId_idx_e358970d",
+        "table": "lessonCompletion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"lessonCompletion_lessonId_idx_e358970d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonCompletion_lessonId_idx_e358970d\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"lessonCompletion_lessonId_idx_e358970d\"",
+        "sql": "CREATE INDEX \"lessonCompletion_lessonId_idx_e358970d\" ON \"public\".\"lessonCompletion\" (\"lessonId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"lessonCompletion_lessonId_idx_e358970d\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonCompletion_lessonId_idx_e358970d\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.lessonCompletion.lessonCompletion_userId_idx_a489d58a",
+    "label": "Create index \"lessonCompletion_userId_idx_a489d58a\" on \"lessonCompletion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "lessonCompletion_userId_idx_a489d58a",
+        "table": "lessonCompletion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"lessonCompletion_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonCompletion_userId_idx_a489d58a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"lessonCompletion_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"lessonCompletion_userId_idx_a489d58a\" ON \"public\".\"lessonCompletion\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"lessonCompletion_userId_idx_a489d58a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonCompletion_userId_idx_a489d58a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.xpEvent.xpEvent_userId_idx_a489d58a",
+    "label": "Create index \"xpEvent_userId_idx_a489d58a\" on \"xpEvent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "xpEvent_userId_idx_a489d58a",
+        "table": "xpEvent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"xpEvent_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"xpEvent_userId_idx_a489d58a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"xpEvent_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"xpEvent_userId_idx_a489d58a\" ON \"public\".\"xpEvent\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"xpEvent_userId_idx_a489d58a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"xpEvent_userId_idx_a489d58a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.checkIn.checkIn_userId_fkey",
+    "label": "Add foreign key \"checkIn_userId_fkey\" on \"checkIn\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "checkIn_userId_fkey",
+        "table": "checkIn"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"checkIn_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "checkIn_userId_fkey",
+          "public",
+          "\"public\".\"checkIn\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"checkIn_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"checkIn\"\nADD CONSTRAINT \"checkIn_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"user\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"checkIn_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "checkIn_userId_fkey",
+          "public",
+          "\"public\".\"checkIn\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.competitionMember.competitionMember_competitionId_fkey",
+    "label": "Add foreign key \"competitionMember_competitionId_fkey\" on \"competitionMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "competitionMember_competitionId_fkey",
+        "table": "competitionMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"competitionMember_competitionId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "competitionMember_competitionId_fkey",
+          "public",
+          "\"public\".\"competitionMember\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"competitionMember_competitionId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"competitionMember\"\nADD CONSTRAINT \"competitionMember_competitionId_fkey\"\nFOREIGN KEY (\"competitionId\")\nREFERENCES \"public\".\"competition\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"competitionMember_competitionId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "competitionMember_competitionId_fkey",
+          "public",
+          "\"public\".\"competitionMember\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.competitionMember.competitionMember_userId_fkey",
+    "label": "Add foreign key \"competitionMember_userId_fkey\" on \"competitionMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "competitionMember_userId_fkey",
+        "table": "competitionMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"competitionMember_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "competitionMember_userId_fkey",
+          "public",
+          "\"public\".\"competitionMember\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"competitionMember_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"competitionMember\"\nADD CONSTRAINT \"competitionMember_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"user\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"competitionMember_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "competitionMember_userId_fkey",
+          "public",
+          "\"public\".\"competitionMember\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.lessonBlock.lessonBlock_lessonId_fkey",
+    "label": "Add foreign key \"lessonBlock_lessonId_fkey\" on \"lessonBlock\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "lessonBlock_lessonId_fkey",
+        "table": "lessonBlock"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"lessonBlock_lessonId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessonBlock_lessonId_fkey",
+          "public",
+          "\"public\".\"lessonBlock\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"lessonBlock_lessonId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"lessonBlock\"\nADD CONSTRAINT \"lessonBlock_lessonId_fkey\"\nFOREIGN KEY (\"lessonId\")\nREFERENCES \"public\".\"lesson\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"lessonBlock_lessonId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessonBlock_lessonId_fkey",
+          "public",
+          "\"public\".\"lessonBlock\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.lessonCompletion.lessonCompletion_userId_fkey",
+    "label": "Add foreign key \"lessonCompletion_userId_fkey\" on \"lessonCompletion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "lessonCompletion_userId_fkey",
+        "table": "lessonCompletion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"lessonCompletion_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessonCompletion_userId_fkey",
+          "public",
+          "\"public\".\"lessonCompletion\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"lessonCompletion_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"lessonCompletion\"\nADD CONSTRAINT \"lessonCompletion_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"user\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"lessonCompletion_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessonCompletion_userId_fkey",
+          "public",
+          "\"public\".\"lessonCompletion\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.lessonCompletion.lessonCompletion_lessonId_fkey",
+    "label": "Add foreign key \"lessonCompletion_lessonId_fkey\" on \"lessonCompletion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "lessonCompletion_lessonId_fkey",
+        "table": "lessonCompletion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"lessonCompletion_lessonId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessonCompletion_lessonId_fkey",
+          "public",
+          "\"public\".\"lessonCompletion\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"lessonCompletion_lessonId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"lessonCompletion\"\nADD CONSTRAINT \"lessonCompletion_lessonId_fkey\"\nFOREIGN KEY (\"lessonId\")\nREFERENCES \"public\".\"lesson\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"lessonCompletion_lessonId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessonCompletion_lessonId_fkey",
+          "public",
+          "\"public\".\"lessonCompletion\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.xpEvent.xpEvent_userId_fkey",
+    "label": "Add foreign key \"xpEvent_userId_fkey\" on \"xpEvent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "xpEvent_userId_fkey",
+        "table": "xpEvent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"xpEvent_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "xpEvent_userId_fkey",
+          "public",
+          "\"public\".\"xpEvent\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"xpEvent_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"xpEvent\"\nADD CONSTRAINT \"xpEvent_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"user\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"xpEvent_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "xpEvent_userId_fkey",
+          "public",
+          "\"public\".\"xpEvent\""
+        ]
+      }
+    ]
+  }
+]

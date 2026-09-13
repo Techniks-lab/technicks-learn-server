@@ -1,0 +1,349 @@
+// use prisma-next
+
+model User {
+  id              Uuid     @id @default(uuid())
+  email           String   @unique
+  username        String?  @unique
+  passwordHash    String
+  fullName        String?
+  avatarUrl       String?
+  role            UserRole @default(STUDENT)
+  isVerified      Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  xp              Int      @default(0)
+
+  createdAt       TimestamptzString @default(now())
+  updatedAt       TimestamptzString @default(now())
+  lastActiveAt    TimestamptzString?
+
+  // Relations
+  sessions        Session[]
+  refreshTokens   RefreshToken[]
+  passwordResets  PasswordReset[]
+  emailVerifications EmailVerification[]
+  blogPosts       BlogPost[]
+  blogComments    BlogComment[]
+  blogLikes       BlogPostLike[]
+  lessonCompletions LessonCompletion[]
+  xpEvents        XpEvent[]
+  competitions    CompetitionMember[]
+  courseEnrollments CourseEnrollment[]
+}
+
+enum UserRole {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+}
+
+model Session {
+  id          Uuid     @id @default(uuid())
+  token       String   @unique
+  ipAddress   String?
+  userAgent   String?
+  expiresAt   TimestamptzString
+  createdAt   TimestamptzString @default(now())
+
+  // Relations
+  userId      Uuid
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RefreshToken {
+  id          Uuid     @id @default(uuid())
+  token       String   @unique
+  expiresAt   TimestamptzString
+  createdAt   TimestamptzString @default(now())
+
+  // Relations
+  userId      Uuid
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PasswordReset {
+  id          Uuid     @id @default(uuid())
+  token       String   @unique
+  expiresAt   TimestamptzString
+  usedAt      TimestamptzString?
+  createdAt   TimestamptzString @default(now())
+
+  // Relations
+  userId      Uuid
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model EmailVerification {
+  id          Uuid     @id @default(uuid())
+  token       String   @unique
+  expiresAt   TimestamptzString
+  usedAt      TimestamptzString?
+  createdAt   TimestamptzString @default(now())
+
+  // Relations
+  userId      Uuid
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum BlogPostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model BlogPost {
+  id          Uuid          @id @default(uuid())
+  title       String
+  slug        String        @unique
+  excerpt     String?
+  content     String
+  coverImage  String?
+  status      BlogPostStatus @default(DRAFT)
+  publishedAt TimestamptzString?
+  readingTime Int?
+  createdAt   TimestamptzString @default(now())
+  updatedAt   TimestamptzString @default(now())
+
+  // Relations
+  authorId    Uuid
+  author      User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  categories  BlogPostCategory[]
+  comments    BlogComment[]
+  likes       BlogPostLike[]
+
+  @@index([authorId])
+  @@index([status])
+}
+
+model BlogCategory {
+  id          Uuid     @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  createdAt   TimestamptzString @default(now())
+
+  // Relations
+  posts       BlogPostCategory[]
+}
+
+model BlogPostCategory {
+  postId     Uuid
+  categoryId Uuid
+
+  // Relations
+  post       BlogPost     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  category   BlogCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, categoryId])
+}
+
+model BlogComment {
+  id        Uuid     @id @default(uuid())
+  body      String
+  createdAt TimestamptzString @default(now())
+  updatedAt TimestamptzString @default(now())
+
+  // Relations
+  postId    Uuid
+  post      BlogPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  Uuid
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parentId  Uuid?
+  parent    BlogComment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   BlogComment[] @relation("CommentReplies")
+
+  @@index([postId])
+  @@index([authorId])
+}
+
+model BlogPostLike {
+  id        Uuid     @id @default(uuid())
+  createdAt TimestamptzString @default(now())
+
+  // Relations
+  postId    Uuid
+  post      BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
+enum LessonStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+}
+
+enum LessonBlockKind {
+  HEADING
+  TEXT
+  IMAGE
+  VIDEO
+}
+
+model Course {
+  id          Uuid             @id @default(uuid())
+  slug        String           @unique
+  title       String
+  description String?
+  coverImage  String?
+  status      CourseStatus     @default(DRAFT)
+  sortOrder   Int              @default(0)
+  publishedAt TimestamptzString?
+  createdAt   TimestamptzString @default(now())
+  updatedAt   TimestamptzString @default(now())
+
+  // Relations
+  categoryId  Uuid?
+  category    CourseCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  lessons     Lesson[]
+  enrolments  CourseEnrollment[]
+
+  @@index([status])
+  @@index([sortOrder])
+  @@index([categoryId])
+}
+
+model CourseCategory {
+  id          Uuid             @id @default(uuid())
+  name        String           @unique
+  slug        String           @unique
+  createdAt   TimestamptzString @default(now())
+  updatedAt   TimestamptzString @default(now())
+
+  // Relations
+  courses     Course[]
+
+  @@index([name])
+}
+
+model CourseEnrollment {
+  id             Uuid              @id @default(uuid())
+  status         EnrollmentStatus  @default(ACTIVE)
+  enrolledAt     TimestamptzString @default(now())
+  currentStreak  Int               @default(0)
+  longestStreak  Int               @default(0)
+  lastCheckInDate String?
+
+  // Relations
+  courseId       Uuid
+  course         Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  userId         Uuid
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checkIns       CheckIn[]
+
+  @@unique([courseId, userId])
+  @@index([userId])
+}
+
+model Lesson {
+  id          Uuid            @id @default(uuid())
+  slug        String          @unique
+  title       String
+  description String?
+  status      LessonStatus    @default(DRAFT)
+  sortOrder   Int             @default(0)
+  createdAt   TimestamptzString @default(now())
+  updatedAt   TimestamptzString @default(now())
+
+  // Relations
+  courseId    Uuid
+  course      Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  blocks      LessonBlock[]
+  completions LessonCompletion[]
+
+  @@index([status])
+  @@index([sortOrder])
+  @@index([courseId])
+}
+
+model LessonBlock {
+  id        Uuid            @id @default(uuid())
+  lessonId  Uuid
+  lesson    Lesson          @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  blockIndex Int            @default(0)
+  kind      LessonBlockKind
+  text      String?
+  url       String?
+  caption   String?
+
+  @@index([lessonId])
+}
+
+model LessonCompletion {
+  id          Uuid             @id @default(uuid())
+  completedAt TimestamptzString @default(now())
+
+  // Relations
+  userId      Uuid
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId    Uuid
+  lesson      Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+}
+
+enum XpSource {
+  DAILY_CHECK_IN
+  LESSON_COMPLETED
+}
+
+model XpEvent {
+  id        Uuid     @id @default(uuid())
+  userId    Uuid
+  source    XpSource
+  amount    Int
+  createdAt TimestamptzString @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Competition {
+  id        Uuid             @id @default(uuid())
+  startsAt  TimestamptzString
+  endsAt    TimestamptzString
+  createdAt TimestamptzString @default(now())
+
+  // Relations
+  members   CompetitionMember[]
+
+  @@unique([startsAt, endsAt])
+}
+
+model CompetitionMember {
+  id            Uuid             @id @default(uuid())
+  points        Int              @default(0)
+  joinedAt      TimestamptzString @default(now())
+
+  // Relations
+  competitionId Uuid
+  competition   Competition       @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  userId        Uuid
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([competitionId, userId])
+}
+
+model CheckIn {
+  id        Uuid               @id @default(uuid())
+  date      String
+  createdAt TimestamptzString  @default(now())
+
+  // Relations
+  enrollmentId Uuid
+  enrollment   CourseEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId, date])
+}

@@ -1,0 +1,1025 @@
+[
+  {
+    "id": "dropConstraint.checkIn.checkIn_userId_fkey",
+    "label": "Drop constraint \"checkIn_userId_fkey\" on \"checkIn\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "checkIn_userId_fkey",
+        "table": "checkIn"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"checkIn_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "checkIn_userId_fkey",
+          "public",
+          "\"public\".\"checkIn\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop constraint \"checkIn_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"checkIn\" DROP CONSTRAINT \"checkIn_userId_fkey\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"checkIn_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "checkIn_userId_fkey",
+          "public",
+          "\"public\".\"checkIn\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.checkIn.checkIn_userId_idx_a489d58a",
+    "label": "Drop index \"checkIn_userId_idx_a489d58a\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "checkIn_userId_idx_a489d58a",
+        "table": "checkIn"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"checkIn_userId_idx_a489d58a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"checkIn_userId_idx_a489d58a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"checkIn_userId_idx_a489d58a\"",
+        "sql": "DROP INDEX \"public\".\"checkIn_userId_idx_a489d58a\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"checkIn_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"checkIn_userId_idx_a489d58a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropConstraint.checkIn.checkIn_userId_date_key",
+    "label": "Drop constraint \"checkIn_userId_date_key\" on \"checkIn\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "checkIn_userId_date_key",
+        "table": "checkIn"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"checkIn_userId_date_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "checkIn_userId_date_key",
+          "public",
+          "\"public\".\"checkIn\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop constraint \"checkIn_userId_date_key\"",
+        "sql": "ALTER TABLE \"public\".\"checkIn\" DROP CONSTRAINT \"checkIn_userId_date_key\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"checkIn_userId_date_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "checkIn_userId_date_key",
+          "public",
+          "\"public\".\"checkIn\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.checkIn.userId",
+    "label": "Drop column \"userId\" from \"checkIn\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "userId",
+        "table": "checkIn"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"userId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "checkIn",
+          "userId"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"userId\"",
+        "sql": "ALTER TABLE \"public\".\"checkIn\" DROP COLUMN \"userId\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"userId\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "checkIn",
+          "userId"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.course",
+    "label": "Create table \"course\"",
+    "summary": "Creates table \"course\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "course"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"course\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"course\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"course\"",
+        "sql": "CREATE TABLE \"public\".\"course\" (\n  \"coverImage\" text,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"description\" text,\n  \"id\" uuid NOT NULL,\n  \"publishedAt\" timestamptz,\n  \"slug\" text NOT NULL,\n  \"sortOrder\" int4 DEFAULT 0 NOT NULL,\n  \"status\" text DEFAULT 'DRAFT' NOT NULL,\n  \"title\" text NOT NULL,\n  \"updatedAt\" timestamptz DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"course_status_check_1b4a7b6b\" CHECK (\"status\" IN ('DRAFT', 'PUBLISHED'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"course\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"course\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.courseEnrollment",
+    "label": "Create table \"courseEnrollment\"",
+    "summary": "Creates table \"courseEnrollment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "courseEnrollment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"courseEnrollment\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"courseEnrollment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"courseEnrollment\"",
+        "sql": "CREATE TABLE \"public\".\"courseEnrollment\" (\n  \"courseId\" uuid NOT NULL,\n  \"currentStreak\" int4 DEFAULT 0 NOT NULL,\n  \"enrolledAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"lastCheckInDate\" text,\n  \"longestStreak\" int4 DEFAULT 0 NOT NULL,\n  \"status\" text DEFAULT 'ACTIVE' NOT NULL,\n  \"userId\" uuid NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"courseEnrollment_status_check_0a2783e1\" CHECK (\"status\" IN ('ACTIVE', 'COMPLETED'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"courseEnrollment\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"courseEnrollment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.checkIn.enrollmentId",
+    "label": "Add column \"enrollmentId\" to \"checkIn\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "enrollmentId",
+        "table": "checkIn"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"enrollmentId\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "checkIn",
+          "enrollmentId"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"enrollmentId\"",
+        "sql": "ALTER TABLE \"public\".\"checkIn\" ADD COLUMN \"enrollmentId\" uuid"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"enrollmentId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "checkIn",
+          "enrollmentId"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "data_migration.backfill-checkIn-enrollmentId",
+    "label": "Data transform: backfill-checkIn-enrollmentId",
+    "operationClass": "data",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [
+      {
+        "description": "Check backfill-checkIn-enrollmentId has work to do",
+        "sql": "SELECT EXISTS (SELECT \"id\" AS \"id\" FROM \"public\".\"checkIn\" WHERE \"enrollmentId\" IS NULL LIMIT 1) AS ok",
+        "params": []
+      }
+    ],
+    "execute": [
+      {
+        "description": "Run backfill-checkIn-enrollmentId",
+        "sql": "DELETE FROM \"public\".\"checkIn\" WHERE \"enrollmentId\" IS NULL",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "Verify backfill-checkIn-enrollmentId resolved all violations",
+        "sql": "SELECT NOT EXISTS (SELECT \"id\" AS \"id\" FROM \"public\".\"checkIn\" WHERE \"enrollmentId\" IS NULL LIMIT 1) AS ok",
+        "params": []
+      }
+    ]
+  },
+  {
+    "id": "alterNullability.setNotNull.checkIn.enrollmentId",
+    "label": "Set NOT NULL on \"checkIn\".\"enrollmentId\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "enrollmentId",
+        "table": "checkIn"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"enrollmentId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "checkIn",
+          "enrollmentId"
+        ]
+      },
+      {
+        "description": "ensure no NULL values in \"enrollmentId\"",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"public\".\"checkIn\" WHERE \"enrollmentId\" IS NULL) AS \"result\"",
+        "params": []
+      }
+    ],
+    "execute": [
+      {
+        "description": "set NOT NULL on \"enrollmentId\"",
+        "sql": "ALTER TABLE \"public\".\"checkIn\" ALTER COLUMN \"enrollmentId\" SET NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"enrollmentId\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "checkIn",
+          "enrollmentId",
+          "NO"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.lesson.courseId",
+    "label": "Add column \"courseId\" to \"lesson\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "courseId",
+        "table": "lesson"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"courseId\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "lesson",
+          "courseId"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"courseId\"",
+        "sql": "ALTER TABLE \"public\".\"lesson\" ADD COLUMN \"courseId\" uuid"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"courseId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "lesson",
+          "courseId"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "data_migration.backfill-lesson-courseId",
+    "label": "Data transform: backfill-lesson-courseId",
+    "operationClass": "data",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [
+      {
+        "description": "Check backfill-lesson-courseId has work to do",
+        "sql": "SELECT EXISTS (SELECT \"id\" AS \"id\" FROM \"public\".\"lesson\" WHERE \"courseId\" IS NULL LIMIT 1) AS ok",
+        "params": []
+      }
+    ],
+    "execute": [
+      {
+        "description": "Run backfill-lesson-courseId",
+        "sql": "INSERT INTO \"public\".\"course\" (\"id\", \"slug\", \"title\", \"description\", \"status\", \"sortOrder\") VALUES ($1::uuid, $2, $3, $4, $5, $6)",
+        "params": [
+          "11111111-1111-4111-8111-111111111111",
+          "getting-started",
+          "Getting Started",
+          "Your first steps into Technicks.",
+          "PUBLISHED",
+          0
+        ]
+      },
+      {
+        "description": "Run backfill-lesson-courseId",
+        "sql": "UPDATE \"public\".\"lesson\" SET \"courseId\" = $1::uuid WHERE \"courseId\" IS NULL",
+        "params": [
+          "11111111-1111-4111-8111-111111111111"
+        ]
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "Verify backfill-lesson-courseId resolved all violations",
+        "sql": "SELECT NOT EXISTS (SELECT \"id\" AS \"id\" FROM \"public\".\"lesson\" WHERE \"courseId\" IS NULL LIMIT 1) AS ok",
+        "params": []
+      }
+    ]
+  },
+  {
+    "id": "alterNullability.setNotNull.lesson.courseId",
+    "label": "Set NOT NULL on \"lesson\".\"courseId\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "courseId",
+        "table": "lesson"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"courseId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "lesson",
+          "courseId"
+        ]
+      },
+      {
+        "description": "ensure no NULL values in \"courseId\"",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"public\".\"lesson\" WHERE \"courseId\" IS NULL) AS \"result\"",
+        "params": []
+      }
+    ],
+    "execute": [
+      {
+        "description": "set NOT NULL on \"courseId\"",
+        "sql": "ALTER TABLE \"public\".\"lesson\" ALTER COLUMN \"courseId\" SET NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"courseId\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "lesson",
+          "courseId",
+          "NO"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.checkIn.checkIn_enrollmentId_date_key",
+    "label": "Add unique constraint on \"checkIn\" (enrollmentId, date)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "checkIn_enrollmentId_date_key",
+        "table": "checkIn"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"checkIn_enrollmentId_date_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "checkIn_enrollmentId_date_key",
+          "public",
+          "\"public\".\"checkIn\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"checkIn_enrollmentId_date_key\"",
+        "sql": "ALTER TABLE \"public\".\"checkIn\" ADD CONSTRAINT \"checkIn_enrollmentId_date_key\" UNIQUE (\"enrollmentId\", \"date\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"checkIn_enrollmentId_date_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "checkIn_enrollmentId_date_key",
+          "public",
+          "\"public\".\"checkIn\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.course.course_slug_key",
+    "label": "Add unique constraint on \"course\" (slug)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "course_slug_key",
+        "table": "course"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"course_slug_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "course_slug_key",
+          "public",
+          "\"public\".\"course\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"course_slug_key\"",
+        "sql": "ALTER TABLE \"public\".\"course\" ADD CONSTRAINT \"course_slug_key\" UNIQUE (\"slug\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"course_slug_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "course_slug_key",
+          "public",
+          "\"public\".\"course\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.courseEnrollment.courseEnrollment_courseId_userId_key",
+    "label": "Add unique constraint on \"courseEnrollment\" (courseId, userId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "courseEnrollment_courseId_userId_key",
+        "table": "courseEnrollment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"courseEnrollment_courseId_userId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "courseEnrollment_courseId_userId_key",
+          "public",
+          "\"public\".\"courseEnrollment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"courseEnrollment_courseId_userId_key\"",
+        "sql": "ALTER TABLE \"public\".\"courseEnrollment\" ADD CONSTRAINT \"courseEnrollment_courseId_userId_key\" UNIQUE (\"courseId\", \"userId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"courseEnrollment_courseId_userId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "courseEnrollment_courseId_userId_key",
+          "public",
+          "\"public\".\"courseEnrollment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.checkIn.checkIn_enrollmentId_idx_ee5e79c5",
+    "label": "Create index \"checkIn_enrollmentId_idx_ee5e79c5\" on \"checkIn\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "checkIn_enrollmentId_idx_ee5e79c5",
+        "table": "checkIn"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"checkIn_enrollmentId_idx_ee5e79c5\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"checkIn_enrollmentId_idx_ee5e79c5\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"checkIn_enrollmentId_idx_ee5e79c5\"",
+        "sql": "CREATE INDEX \"checkIn_enrollmentId_idx_ee5e79c5\" ON \"public\".\"checkIn\" (\"enrollmentId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"checkIn_enrollmentId_idx_ee5e79c5\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"checkIn_enrollmentId_idx_ee5e79c5\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.course.course_sortOrder_idx_ebf2eac2",
+    "label": "Create index \"course_sortOrder_idx_ebf2eac2\" on \"course\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "course_sortOrder_idx_ebf2eac2",
+        "table": "course"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"course_sortOrder_idx_ebf2eac2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"course_sortOrder_idx_ebf2eac2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"course_sortOrder_idx_ebf2eac2\"",
+        "sql": "CREATE INDEX \"course_sortOrder_idx_ebf2eac2\" ON \"public\".\"course\" (\"sortOrder\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"course_sortOrder_idx_ebf2eac2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"course_sortOrder_idx_ebf2eac2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.course.course_status_idx_e98638ab",
+    "label": "Create index \"course_status_idx_e98638ab\" on \"course\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "course_status_idx_e98638ab",
+        "table": "course"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"course_status_idx_e98638ab\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"course_status_idx_e98638ab\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"course_status_idx_e98638ab\"",
+        "sql": "CREATE INDEX \"course_status_idx_e98638ab\" ON \"public\".\"course\" (\"status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"course_status_idx_e98638ab\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"course_status_idx_e98638ab\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.courseEnrollment.courseEnrollment_courseId_idx_12f72d2a",
+    "label": "Create index \"courseEnrollment_courseId_idx_12f72d2a\" on \"courseEnrollment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "courseEnrollment_courseId_idx_12f72d2a",
+        "table": "courseEnrollment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"courseEnrollment_courseId_idx_12f72d2a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"courseEnrollment_courseId_idx_12f72d2a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"courseEnrollment_courseId_idx_12f72d2a\"",
+        "sql": "CREATE INDEX \"courseEnrollment_courseId_idx_12f72d2a\" ON \"public\".\"courseEnrollment\" (\"courseId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"courseEnrollment_courseId_idx_12f72d2a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"courseEnrollment_courseId_idx_12f72d2a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.courseEnrollment.courseEnrollment_userId_idx_a489d58a",
+    "label": "Create index \"courseEnrollment_userId_idx_a489d58a\" on \"courseEnrollment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "courseEnrollment_userId_idx_a489d58a",
+        "table": "courseEnrollment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"courseEnrollment_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"courseEnrollment_userId_idx_a489d58a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"courseEnrollment_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"courseEnrollment_userId_idx_a489d58a\" ON \"public\".\"courseEnrollment\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"courseEnrollment_userId_idx_a489d58a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"courseEnrollment_userId_idx_a489d58a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.lesson.lesson_courseId_idx_12f72d2a",
+    "label": "Create index \"lesson_courseId_idx_12f72d2a\" on \"lesson\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "lesson_courseId_idx_12f72d2a",
+        "table": "lesson"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"lesson_courseId_idx_12f72d2a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lesson_courseId_idx_12f72d2a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"lesson_courseId_idx_12f72d2a\"",
+        "sql": "CREATE INDEX \"lesson_courseId_idx_12f72d2a\" ON \"public\".\"lesson\" (\"courseId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"lesson_courseId_idx_12f72d2a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lesson_courseId_idx_12f72d2a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.courseEnrollment.courseEnrollment_courseId_fkey",
+    "label": "Add foreign key \"courseEnrollment_courseId_fkey\" on \"courseEnrollment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "courseEnrollment_courseId_fkey",
+        "table": "courseEnrollment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"courseEnrollment_courseId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "courseEnrollment_courseId_fkey",
+          "public",
+          "\"public\".\"courseEnrollment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"courseEnrollment_courseId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"courseEnrollment\"\nADD CONSTRAINT \"courseEnrollment_courseId_fkey\"\nFOREIGN KEY (\"courseId\")\nREFERENCES \"public\".\"course\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"courseEnrollment_courseId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "courseEnrollment_courseId_fkey",
+          "public",
+          "\"public\".\"courseEnrollment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.courseEnrollment.courseEnrollment_userId_fkey",
+    "label": "Add foreign key \"courseEnrollment_userId_fkey\" on \"courseEnrollment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "courseEnrollment_userId_fkey",
+        "table": "courseEnrollment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"courseEnrollment_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "courseEnrollment_userId_fkey",
+          "public",
+          "\"public\".\"courseEnrollment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"courseEnrollment_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"courseEnrollment\"\nADD CONSTRAINT \"courseEnrollment_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"user\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"courseEnrollment_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "courseEnrollment_userId_fkey",
+          "public",
+          "\"public\".\"courseEnrollment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.checkIn.checkIn_enrollmentId_fkey",
+    "label": "Add foreign key \"checkIn_enrollmentId_fkey\" on \"checkIn\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "checkIn_enrollmentId_fkey",
+        "table": "checkIn"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"checkIn_enrollmentId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "checkIn_enrollmentId_fkey",
+          "public",
+          "\"public\".\"checkIn\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"checkIn_enrollmentId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"checkIn\"\nADD CONSTRAINT \"checkIn_enrollmentId_fkey\"\nFOREIGN KEY (\"enrollmentId\")\nREFERENCES \"public\".\"courseEnrollment\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"checkIn_enrollmentId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "checkIn_enrollmentId_fkey",
+          "public",
+          "\"public\".\"checkIn\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.lesson.lesson_courseId_fkey",
+    "label": "Add foreign key \"lesson_courseId_fkey\" on \"lesson\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "lesson_courseId_fkey",
+        "table": "lesson"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"lesson_courseId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lesson_courseId_fkey",
+          "public",
+          "\"public\".\"lesson\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"lesson_courseId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"lesson\"\nADD CONSTRAINT \"lesson_courseId_fkey\"\nFOREIGN KEY (\"courseId\")\nREFERENCES \"public\".\"course\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"lesson_courseId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lesson_courseId_fkey",
+          "public",
+          "\"public\".\"lesson\""
+        ]
+      }
+    ]
+  }
+]

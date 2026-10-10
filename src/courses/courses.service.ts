@@ -71,7 +71,10 @@ export class CoursesService {
   // Public catalog
   // ---------------------------------------------------------------------------
 
-  async findAll(userId?: string, query?: { search?: string; category?: string }) {
+  async findAll(
+    userId?: string,
+    query?: { search?: string; category?: string },
+  ) {
     const search = query?.search?.trim();
     const category = query?.category?.trim();
 
@@ -115,7 +118,7 @@ export class CoursesService {
     return {
       courses: courses.map((c) => {
         const enrollment = enrollmentByCourse.get(c.id);
-        const categoryRow = (c.category as any) ?? null;
+        const categoryRow = c.category ?? null;
         return {
           id: c.id,
           slug: c.slug,
@@ -173,21 +176,19 @@ export class CoursesService {
 
     const categoryIds = [
       ...new Set(
-        enrollments
-          .map((e) => (e.course as any).categoryId)
-          .filter((x) => !!x),
+        enrollments.map((e) => e.course.categoryId).filter((x) => !!x),
       ),
     ];
     const categoryRows: any[] = categoryIds.length
-      ? ((await this.prisma.orm.public.CourseCategory.where((c) =>
+      ? await this.prisma.orm.public.CourseCategory.where((c) =>
           c.id.in(categoryIds),
-        ).all()) as any)
+        ).all()
       : [];
     const categoryById = new Map(categoryRows.map((c) => [c.id, c]));
 
     return {
       courses: enrollments.map((e) => {
-        const course = e.course as any;
+        const course = e.course;
         const category = categoryById.get(course.categoryId) ?? null;
         return {
           id: course.id,
@@ -245,9 +246,9 @@ export class CoursesService {
     }
 
     const category = course.categoryId
-      ? ((await this.prisma.orm.public.CourseCategory.where({
+      ? await this.prisma.orm.public.CourseCategory.where({
           id: course.categoryId,
-        }).first()) as any)
+        }).first()
       : null;
 
     return {
@@ -366,6 +367,27 @@ export class CoursesService {
       throw new UnauthorizedException('You are not enrolled in this course');
     }
 
+    return this.recordDailyCheckIn(enrollment.id, userId, dateOverride);
+  }
+
+  /**
+   * Records today's check-in for an enrollment and recomputes the streak.
+   * Idempotent: repeated calls on the same date return the current state
+   * without awarding XP twice. This is what a passing quiz (and the manual
+   * check-in endpoint) both funnel through.
+   */
+  async recordDailyCheckIn(
+    enrollmentId: string,
+    userId: string,
+    dateOverride?: string,
+  ) {
+    const enrollment = await this.prisma.orm.public.CourseEnrollment.where({
+      id: enrollmentId,
+    }).first();
+    if (!enrollment || enrollment.status !== 'ACTIVE') {
+      throw new UnauthorizedException('You are not enrolled in this course');
+    }
+
     const date = dateOverride || toDateKey(new Date());
 
     const existing = await this.prisma.orm.public.CheckIn.where({
@@ -447,8 +469,9 @@ export class CoursesService {
       };
     }
 
-    await this.prisma.orm.public.CourseEnrollment.where({ id: enrollment.id })
-      .delete();
+    await this.prisma.orm.public.CourseEnrollment.where({
+      id: enrollment.id,
+    }).delete();
 
     return {
       unenrolled: true,
@@ -530,8 +553,139 @@ export class CoursesService {
   }
 
   // ---------------------------------------------------------------------------
-  // Admin
+  // Admin (drafts included)
   // ---------------------------------------------------------------------------
+
+  async findAllAdmin(query?: { status?: string; search?: string }) {
+    const status =
+      query?.status && query.status !== 'ALL' ? query.status : undefined;
+    const search = query?.search?.trim();
+
+    let queryBuilder = this.prisma.orm.public.Course.where(
+      status ? ({ status } as any) : {},
+    );
+    if (search) {
+      queryBuilder = queryBuilder.where((c) =>
+        or(c.title.ilike(`%${search}%`), c.description.ilike(`%${search}%`)),
+      );
+    }
+
+    const courses = await queryBuilder
+      .include('lessons', (l) => l.count())
+      .include('category', (cat) => cat.select('id', 'name', 'slug'))
+      .orderBy((c) => c.sortOrder.asc())
+      .all();
+
+    return {
+      courses: courses.map((c) => {
+        const categoryRow = c.category ?? null;
+        return {
+          id: c.id,
+          slug: c.slug,
+          title: c.title,
+          description: c.description,
+          coverImage: c.coverImage,
+          status: c.status,
+          sortOrder: c.sortOrder,
+          publishedAt: c.publishedAt,
+          createdAt: c.createdAt,
+          updatedAt: c.updatedAt,
+          category: categoryRow
+            ? {
+                id: categoryRow.id,
+                name: categoryRow.name,
+                slug: categoryRow.slug,
+              }
+            : null,
+          lessonCount: (c.lessons as unknown as number) ?? 0,
+        };
+      }),
+    };
+  }
+
+  async findAdminById(courseId: string) {
+    const course = await this.prisma.orm.public.Course.where({
+      id: courseId,
+    }).first();
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
+
+    const category = course.categoryId
+      ? await this.prisma.orm.public.CourseCategory.where({
+          id: course.categoryId,
+        }).first()
+      : null;
+
+    const lessons = await this.prisma.orm.public.Lesson.where((l) =>
+      l.courseId.eq(courseId),
+    )
+      .orderBy((l) => l.sortOrder.asc())
+      .all();
+
+    const blockCounts = new Map<string, number>();
+    if (lessons.length > 0) {
+      const blocks = await this.prisma.orm.public.LessonBlock.where((b) =>
+        b.lessonId.in(lessons.map((l) => l.id)),
+      ).all();
+      for (const b of blocks) {
+        blockCounts.set(b.lessonId, (blockCounts.get(b.lessonId) ?? 0) + 1);
+      }
+    }
+
+    return {
+      id: course.id,
+      slug: course.slug,
+      title: course.title,
+      description: course.description,
+      coverImage: course.coverImage,
+      status: course.status,
+      sortOrder: course.sortOrder,
+      publishedAt: course.publishedAt,
+      createdAt: course.createdAt,
+      updatedAt: course.updatedAt,
+      category: category
+        ? { id: category.id, name: category.name, slug: category.slug }
+        : null,
+      lessons: lessons.map((l) => ({
+        id: l.id,
+        slug: l.slug,
+        title: l.title,
+        description: l.description,
+        status: l.status,
+        sortOrder: l.sortOrder,
+        updatedAt: l.updatedAt,
+        blockCount: blockCounts.get(l.id) ?? 0,
+      })),
+    };
+  }
+
+  async updateCategory(id: string, dto: { name?: string; slug?: string }) {
+    const category = await this.prisma.orm.public.CourseCategory.where({
+      id,
+    }).first();
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+
+    const updateData: Record<string, any> = {};
+    if (dto.name !== undefined) updateData.name = dto.name;
+    if (dto.slug !== undefined) updateData.slug = dto.slug;
+    updateData.updatedAt = new Date().toISOString();
+
+    await this.prisma.orm.public.CourseCategory.where({ id }).update(
+      updateData,
+    );
+
+    const updated = await this.prisma.orm.public.CourseCategory.where({
+      id,
+    }).first();
+    return {
+      id: updated!.id,
+      name: updated!.name,
+      slug: updated!.slug,
+    };
+  }
 
   async create(dto: CreateCourseDto) {
     const slug = dto.slug || slugify(dto.title);

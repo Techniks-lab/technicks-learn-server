@@ -4,6 +4,7 @@ import {
   IsArray,
   IsEnum,
   IsInt,
+  IsObject,
   IsOptional,
   IsString,
   MaxLength,
@@ -16,6 +17,7 @@ export const LESSON_BLOCK_KINDS = [
   'TEXT',
   'IMAGE',
   'VIDEO',
+  'QUIZ',
 ] as const;
 export type LessonBlockKind = (typeof LESSON_BLOCK_KINDS)[number];
 
@@ -51,6 +53,16 @@ export class CreateLessonBlockDto {
   @IsString()
   @MaxLength(500)
   caption?: string;
+
+  @ApiPropertyOptional({
+    type: Object,
+    description:
+      'Required for QUIZ blocks: { title?, passPercentage?, questions: [{ prompt, options: string[], correctIndex }] }. ' +
+      'Stored server-side; correctIndex is never returned to clients.',
+  })
+  @IsOptional()
+  @IsObject()
+  data?: Record<string, unknown>;
 }
 
 export class CreateLessonDto {

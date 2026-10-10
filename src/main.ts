@@ -18,7 +18,7 @@ function buildTaggedDoc(tag: string, full: OpenAPIObject): OpenAPIObject {
   }
 
   return {
-    ...full,
+    ...full, 
     openapi: full.openapi,
     info: { ...full.info, title: `${tag} API` },
     paths,

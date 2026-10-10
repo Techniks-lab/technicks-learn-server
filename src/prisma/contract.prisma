@@ -25,6 +25,7 @@ model User {
   blogComments    BlogComment[]
   blogLikes       BlogPostLike[]
   lessonCompletions LessonCompletion[]
+  quizAttempts      LessonQuizAttempt[]
   xpEvents        XpEvent[]
   competitions    CompetitionMember[]
   courseEnrollments CourseEnrollment[]
@@ -188,6 +189,7 @@ enum LessonBlockKind {
   TEXT
   IMAGE
   VIDEO
+  QUIZ
 }
 
 model Course {
@@ -260,6 +262,7 @@ model Lesson {
   course      Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
   blocks      LessonBlock[]
   completions LessonCompletion[]
+  quizAttempts LessonQuizAttempt[]
 
   @@index([status])
   @@index([sortOrder])
@@ -275,8 +278,42 @@ model LessonBlock {
   text      String?
   url       String?
   caption   String?
+  data      String?
 
   @@index([lessonId])
+}
+
+model LessonQuizAttempt {
+  id         Uuid             @id @default(uuid())
+  score      Int              @default(0)
+  total      Int              @default(0)
+  passed     Boolean          @default(false)
+  answeredAt TimestamptzString @default(now())
+
+  // Relations
+  userId      Uuid
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId    Uuid
+  lesson      Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  answers     LessonQuizAnswer[]
+
+  @@index([userId, lessonId])
+}
+
+model LessonQuizAnswer {
+  id            Uuid  @id @default(uuid())
+  questionIndex Int   @default(0)
+  selectedIndex Int?
+  correctIndex  Int   @default(0)
+  isCorrect     Boolean @default(false)
+  answeredAt    TimestamptzString @default(now())
+
+  // Relations
+  attemptId Uuid
+  attempt   LessonQuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId])
+  @@index([questionIndex])
 }
 
 model LessonCompletion {

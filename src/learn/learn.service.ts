@@ -1,13 +1,17 @@
 import {
-  Injectable,
-  NotFoundException,
+  BadRequestException,
   ConflictException,
   ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateLessonDto } from './dto/create-lesson.dto.js';
 import { UpdateLessonDto } from './dto/update-lesson.dto.js';
+import { LessonQuizDto } from './dto/lesson-quiz.dto.js';
 import { XpService } from '../gamification/xp.service.js';
+import { CoursesService } from '../courses/courses.service.js';
 
 function slugify(text: string): string {
   return text
@@ -17,11 +21,76 @@ function slugify(text: string): string {
     .slice(0, 200);
 }
 
+const DEFAULT_PASS_PERCENTAGE = 70;
+
+interface QuizQuestion {
+  prompt: string;
+  options: string[];
+  correctIndex: number;
+}
+
+interface LessonQuizData {
+  title?: string;
+  passPercentage?: number;
+  questions: QuizQuestion[];
+}
+
+function parseQuizData(raw: string | null | undefined): LessonQuizData | null {
+  if (!raw) {
+    return null;
+  }
+  try {
+    const parsed = JSON.parse(raw) as Partial<LessonQuizData>;
+    if (!Array.isArray(parsed.questions) || parsed.questions.length === 0) {
+      return null;
+    }
+    const questions = parsed.questions
+      .filter(
+        (q): q is QuizQuestion =>
+          !!q &&
+          typeof q.prompt === 'string' &&
+          Array.isArray(q.options) &&
+          q.options.length > 0 &&
+          typeof q.correctIndex === 'number',
+      )
+      .map((q) => ({
+        prompt: q.prompt,
+        options: q.options.map(String),
+        correctIndex: q.correctIndex,
+      }));
+    if (questions.length === 0) {
+      return null;
+    }
+    return {
+      title: typeof parsed.title === 'string' ? parsed.title : undefined,
+      passPercentage:
+        typeof parsed.passPercentage === 'number' &&
+        parsed.passPercentage > 0 &&
+        parsed.passPercentage <= 100
+          ? parsed.passPercentage
+          : DEFAULT_PASS_PERCENTAGE,
+      questions,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function serializeQuizData(data: unknown): string | null {
+  if (data === undefined || data === null) {
+    return null;
+  }
+  return JSON.stringify(data);
+}
+
 @Injectable()
 export class LearnService {
+  private readonly logger = new Logger(LearnService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly xpService: XpService,
+    private readonly coursesService: CoursesService,
   ) {}
 
   private async getCompletedIds(userId?: string): Promise<Set<string>> {
@@ -71,6 +140,91 @@ export class LearnService {
     };
   }
 
+  // ---------------------------------------------------------------------------
+  // Admin (drafts included)
+  // ---------------------------------------------------------------------------
+
+  async findAllAdmin(query?: { courseId?: string; status?: string }) {
+    const courseId = query?.courseId?.trim();
+    const status =
+      query?.status && query.status !== 'ALL' ? query.status : undefined;
+
+    let builder = this.prisma.orm.public.Lesson.where(
+      status ? ({ status } as any) : {},
+    );
+    if (courseId) {
+      builder = builder.where((l) => l.courseId.eq(courseId));
+    }
+
+    const lessons = await builder.orderBy((l) => l.sortOrder.asc()).all();
+
+    const blockCounts = new Map<string, number>();
+    if (lessons.length > 0) {
+      const blocks = await this.prisma.orm.public.LessonBlock.where((b) =>
+        b.lessonId.in(lessons.map((l) => l.id)),
+      ).all();
+      for (const b of blocks) {
+        blockCounts.set(b.lessonId, (blockCounts.get(b.lessonId) ?? 0) + 1);
+      }
+    }
+
+    return {
+      lessons: lessons.map((l) => ({
+        id: l.id,
+        slug: l.slug,
+        title: l.title,
+        description: l.description,
+        status: l.status,
+        courseId: l.courseId,
+        sortOrder: l.sortOrder,
+        createdAt: l.createdAt,
+        updatedAt: l.updatedAt,
+        blockCount: blockCounts.get(l.id) ?? 0,
+      })),
+    };
+  }
+
+  /**
+   * Author-facing lesson read: returns QUIZ block data verbatim, including
+   * `correctIndex`, so an admin editor can round-trip the answer key.
+   * Never expose this to students — public reads must strip answers.
+   */
+  async findForAuthor(lessonId: string) {
+    const lesson = await this.prisma.orm.public.Lesson.where({
+      id: lessonId,
+    }).first();
+    if (!lesson) {
+      throw new NotFoundException('Lesson not found');
+    }
+
+    const blocks = await this.prisma.orm.public.LessonBlock.where({
+      lessonId,
+    })
+      .orderBy((b) => b.blockIndex.asc())
+      .all();
+
+    return {
+      id: lesson.id,
+      slug: lesson.slug,
+      title: lesson.title,
+      description: lesson.description,
+      status: lesson.status,
+      courseId: lesson.courseId,
+      sortOrder: lesson.sortOrder,
+      createdAt: lesson.createdAt,
+      updatedAt: lesson.updatedAt,
+      blocks: blocks.map((b) => ({
+        id: b.id,
+        blockIndex: b.blockIndex,
+        kind: b.kind,
+        text: b.text,
+        url: b.url,
+        caption: b.caption,
+        data: b.kind === 'QUIZ' ? parseQuizData(b.data) : null,
+      })),
+    };
+  }
+
   async findBySlug(slug: string, userId?: string) {
     const lesson = await this.prisma.orm.public.Lesson.where({ slug }).first();
     if (!lesson) {
@@ -84,12 +238,34 @@ export class LearnService {
       .all();
 
     let isCompleted = false;
+    let quizResult: {
+      passed: boolean;
+      score: number;
+      total: number;
+      answeredAt: string;
+    } | null = null;
     if (userId) {
       const completion = await this.prisma.orm.public.LessonCompletion.where({
         lessonId: lesson.id,
         userId,
       }).first();
       isCompleted = !!completion;
+
+      const latestAttempt =
+        await this.prisma.orm.public.LessonQuizAttempt.where({
+          lessonId: lesson.id,
+          userId,
+        })
+          .orderBy((a) => a.answeredAt.desc())
+          .first();
+      if (latestAttempt) {
+        quizResult = {
+          passed: latestAttempt.passed,
+          score: latestAttempt.score,
+          total: latestAttempt.total,
+          answeredAt: latestAttempt.answeredAt,
+        };
+      }
     }
 
     return {
@@ -103,15 +279,155 @@ export class LearnService {
       createdAt: lesson.createdAt,
       updatedAt: lesson.updatedAt,
       isCompleted,
-      blocks: blocks.map((b) => ({
-        id: b.id,
-        blockIndex: b.blockIndex,
-        kind: b.kind,
-        text: b.text,
-        url: b.url,
-        caption: b.caption,
-      })),
+      quizResult,
+      blocks: blocks.map((b) => {
+        let data: unknown = null;
+        if (b.kind === 'QUIZ') {
+          const parsed = parseQuizData(b.data);
+          if (parsed) {
+            data = {
+              title: parsed.title,
+              passPercentage: parsed.passPercentage,
+              questions: parsed.questions.map((q) => ({
+                prompt: q.prompt,
+                options: q.options,
+              })),
+            };
+          }
+        }
+        return {
+          id: b.id,
+          blockIndex: b.blockIndex,
+          kind: b.kind,
+          text: b.text,
+          url: b.url,
+          caption: b.caption,
+          data,
+        };
+      }),
     };
+  }
+
+  private async hasPassedQuiz(lessonId: string, userId: string) {
+    const attempt = await this.prisma.orm.public.LessonQuizAttempt.where({
+      lessonId,
+      userId,
+      passed: true,
+    }).first();
+    return !!attempt;
+  }
+
+  async submitQuiz(slug: string, userId: string, dto: LessonQuizDto) {
+    const lesson = await this.prisma.orm.public.Lesson.where({ slug }).first();
+    if (!lesson || lesson.status !== 'PUBLISHED') {
+      throw new NotFoundException('Lesson not found');
+    }
+
+    const enrollment = await this.prisma.orm.public.CourseEnrollment.where({
+      courseId: lesson.courseId,
+      userId,
+    }).first();
+    if (!enrollment || enrollment.status !== 'ACTIVE') {
+      throw new ForbiddenException(
+        'You must be enrolled in the course to take this quiz',
+      );
+    }
+
+    const blocks = await this.prisma.orm.public.LessonBlock.where({
+      lessonId: lesson.id,
+    })
+      .orderBy((b) => b.blockIndex.asc())
+      .all();
+
+    const questionSets = blocks
+      .filter((b) => b.kind === 'QUIZ')
+      .map((b) => parseQuizData(b.data))
+      .filter((d): d is LessonQuizData => d !== null);
+
+    if (questionSets.length === 0) {
+      throw new NotFoundException('This lesson has no quiz to submit');
+    }
+
+    const passPercentage =
+      questionSets[0].passPercentage ?? DEFAULT_PASS_PERCENTAGE;
+    const questions: QuizQuestion[] = questionSets.flatMap((d) => d.questions);
+    const total = questions.length;
+
+    const answers = dto.answers;
+    const answerResults: boolean[] = [];
+    let score = 0;
+    const correctAnswers: number[] = [];
+    for (let i = 0; i < total; i++) {
+      correctAnswers.push(questions[i].correctIndex);
+      answerResults.push(answers[i] === questions[i].correctIndex);
+      if (answerResults[i]) {
+        score++;
+      }
+    }
+
+    const passed = score / total >= passPercentage / 100;
+
+    const attemptId = crypto.randomUUID();
+    await this.prisma.orm.public.LessonQuizAttempt.create({
+      id: attemptId,
+      lessonId: lesson.id,
+      userId,
+      score,
+      total,
+      passed,
+    });
+
+    // Snapshot every submitted answer (question index, selected option, and the
+    // correct option at the time) so per-question analytics stay valid even if
+    // the quiz is edited later. Attempts are per-user, per-lesson, private.
+    for (let i = 0; i < total; i++) {
+      await this.prisma.orm.public.LessonQuizAnswer.create({
+        attemptId,
+        questionIndex: i,
+        selectedIndex: answers[i],
+        correctIndex: questions[i].correctIndex,
+        isCorrect: answerResults[i],
+      });
+    }
+
+    // A passing quiz is the day's learning activity, so it records the daily
+    // check-in for the course — this is what grows the streak now, and the
+    // manual "Check in" button is no longer needed.
+    const checkIn = passed
+      ? await this.recordCourseCheckIn(lesson.courseId, userId)
+      : null;
+
+    return {
+      lessonId: lesson.id,
+      passed,
+      score,
+      total,
+      passPercentage,
+      correctAnswers,
+      checkIn,
+    };
+  }
+
+  private async recordCourseCheckIn(courseId: string, userId: string) {
+    const enrollment = await this.prisma.orm.public.CourseEnrollment.where({
+      courseId,
+      userId,
+    }).first();
+    if (!enrollment || enrollment.status !== 'ACTIVE') {
+      return null;
+    }
+    try {
+      return await this.coursesService.recordDailyCheckIn(
+        enrollment.id,
+        userId,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Quiz passed but failed to record daily check-in for user ${userId}`,
+        error,
+      );
+      return null;
+    }
   }
 
   async complete(slug: string, userId: string) {
@@ -138,6 +454,18 @@ export class LearnService {
     if (existing) {
       const xp = await this.xpService.currentXp(userId);
       return { completed: true, xpAwarded: 0, xp };
+    }
+
+    const blocks = await this.prisma.orm.public.LessonBlock.where({
+      lessonId: lesson.id,
+    }).all();
+    const hasQuiz = blocks.some(
+      (b) => b.kind === 'QUIZ' && parseQuizData(b.data) !== null,
+    );
+    if (hasQuiz && !(await this.hasPassedQuiz(lesson.id, userId))) {
+      throw new ForbiddenException(
+        'Pass the lesson quiz before marking this lesson complete',
+      );
     }
 
     try {
@@ -191,6 +519,7 @@ export class LearnService {
     });
 
     if (dto.blocks?.length) {
+      this.assertValidQuizBlocks(dto.blocks);
       for (const block of dto.blocks) {
         await this.prisma.orm.public.LessonBlock.create({
           id: crypto.randomUUID(),
@@ -200,11 +529,29 @@ export class LearnService {
           text: block.text ?? null,
           url: block.url ?? null,
           caption: block.caption ?? null,
+          data: serializeQuizData(block.data),
         });
       }
     }
 
     return this.findBySlug(lesson.slug);
+  }
+
+  /**
+   * A QUIZ block with malformed data can never be passed, which would soft-lock
+   * lesson completion. Reject bad payloads at write time instead of read time.
+   */
+  private assertValidQuizBlocks(
+    blocks: { kind: string; data?: Record<string, unknown> }[],
+  ) {
+    for (const block of blocks) {
+      if (block.kind !== 'QUIZ') continue;
+      if (!parseQuizData(JSON.stringify(block.data ?? null))) {
+        throw new BadRequestException(
+          'QUIZ blocks require data: { title?, passPercentage?, questions: [{ prompt, options: string[], correctIndex }] }',
+        );
+      }
+    }
   }
 
   async update(lessonId: string, dto: UpdateLessonDto) {
@@ -229,6 +576,7 @@ export class LearnService {
     );
 
     if (dto.blocks !== undefined) {
+      this.assertValidQuizBlocks(dto.blocks);
       await this.prisma.orm.public.LessonBlock.where({ lessonId }).delete();
       for (const block of dto.blocks) {
         await this.prisma.orm.public.LessonBlock.create({
@@ -239,6 +587,7 @@ export class LearnService {
           text: block.text ?? null,
           url: block.url ?? null,
           caption: block.caption ?? null,
+          data: serializeQuizData(block.data),
         });
       }
     }

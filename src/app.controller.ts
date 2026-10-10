@@ -9,10 +9,10 @@ export class AppController {
   @Get()
   @Version('1')
   getHello(): string {
-    return this.appService.getAPIversion();
+    return this.appService.getAPIversion(); 
   }
-
-  @Get('health')
+ 
+  @Get('health') 
   @Version('1')
   @ApiOperation({ summary: 'Liveness/readiness check for the API and database', tags: ['health'] })
   @ApiResponse({ status: 200, description: 'API and database are healthy' })

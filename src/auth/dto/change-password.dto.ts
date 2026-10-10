@@ -20,6 +20,9 @@ export class ChangePasswordDto {
 export class ResetPasswordDto {
   @ApiProperty({ example: '123456', description: '6-digit OTP from email' })
   @IsString()
+  @MinLength(6)
+  @MaxLength(6)
+  @Matches(/^\d{6}$/, { message: 'OTP must be exactly 6 digits' })
   token!: string;
 
   @ApiProperty({ example: 'NewPassword1', description: 'New password (min 8 chars, must include uppercase, lowercase, number)' })

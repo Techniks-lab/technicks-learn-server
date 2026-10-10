@@ -1,4 +1,11 @@
-import { IsString, IsOptional, IsEnum, IsArray, MinLength, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsArray,
+  MinLength,
+  MaxLength,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum PostStatus {
@@ -19,7 +26,9 @@ export class CreatePostDto {
   @IsString()
   slug?: string;
 
-  @ApiPropertyOptional({ example: 'Learn how to structure a NestJS backend...' })
+  @ApiPropertyOptional({
+    example: 'Learn how to structure a NestJS backend...',
+  })
   @IsOptional()
   @IsString()
   @MaxLength(500)

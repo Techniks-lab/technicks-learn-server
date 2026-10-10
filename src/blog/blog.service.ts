@@ -54,6 +54,21 @@ async function getCountsForPosts(
   return { likeCounts, commentCounts };
 }
 
+/**
+ * Shared WHERE clauses for the admin post listing. Called with a fresh
+ * builder each time so list pagination never affects the count query.
+ */
+function applyBlogAdminFilters(
+  builder: any,
+  authorId?: string,
+  search?: string,
+) {
+  let out = builder;
+  if (authorId) out = out.where((p: any) => p.authorId.eq(authorId));
+  if (search) out = out.where((p: any) => p.title.ilike(`%${search}%`));
+  return out;
+}
+
 @Injectable()
 export class BlogService {
   constructor(
@@ -149,10 +164,10 @@ export class BlogService {
         coverImage: p.coverImage,
         createdAt: p.createdAt,
         author: {
-          id: (p.author as any).id,
-          name: (p.author as any).fullName,
-          username: (p.author as any).username,
-          avatarUrl: (p.author as any).avatarUrl,
+          id: p.author.id,
+          name: p.author.fullName,
+          username: p.author.username,
+          avatarUrl: p.author.avatarUrl,
         },
         categories: (p.categories as any[]).map((c: any) => ({
           id: c.category.id,
@@ -204,10 +219,10 @@ export class BlogService {
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
       author: {
-        id: (post.author as any).id,
-        name: (post.author as any).fullName,
-        username: (post.author as any).username,
-        avatarUrl: (post.author as any).avatarUrl,
+        id: post.author.id,
+        name: post.author.fullName,
+        username: post.author.username,
+        avatarUrl: post.author.avatarUrl,
       },
       categories: (post.categories as any[]).map((c: any) => ({
         id: c.category.id,
@@ -224,8 +239,21 @@ export class BlogService {
   // My posts
   // ---------------------------------------------------------------------------
 
-  async findMyPosts(userId: string) {
-    const posts = await this.prisma.orm.public.BlogPost.where({ authorId: userId })
+  async findMyPosts(userId: string, page = 1, limit = 20, status?: string) {
+    const offset = (page - 1) * limit;
+    const normalizedStatus =
+      status && status !== 'ALL' ? status : undefined;
+
+    // Two independent builders: Prisma 8 RC has no top-level .count(), and we
+    // must not let pagination on the list query bleed into the total count.
+    const buildBase = () => {
+      const base = this.prisma.orm.public.BlogPost.where({ authorId: userId });
+      return normalizedStatus
+        ? base.where({ status: normalizedStatus } as any)
+        : base;
+    };
+
+    const posts = await buildBase()
       .include('author', (a) =>
         a.select('id', 'fullName', 'username', 'avatarUrl'),
       )
@@ -233,6 +261,8 @@ export class BlogService {
         c.include('category', (cat) => cat.select('id', 'name', 'slug')),
       )
       .orderBy((p) => p.updatedAt.desc())
+      .limit(limit)
+      .offset(offset)
       .all();
 
     const postIds = posts.map((p) => p.id);
@@ -240,6 +270,83 @@ export class BlogService {
       this.prisma,
       postIds,
     );
+
+    const total = (await buildBase().all()).length;
+
+    return {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      posts: posts.map((p) => ({
+        id: p.id,
+        title: p.title,
+        slug: p.slug,
+        excerpt: p.excerpt,
+        coverImage: p.coverImage,
+        status: p.status,
+        createdAt: p.createdAt,
+        updatedAt: p.updatedAt,
+        publishedAt: p.publishedAt,
+        readingTime: p.readingTime,
+        author: {
+          id: p.author.id,
+          name: p.author.fullName,
+          username: p.author.username,
+          avatarUrl: p.author.avatarUrl,
+        },
+        categories: (p.categories as any[]).map((c: any) => ({
+          id: c.category.id,
+          name: c.category.name,
+          slug: c.category.slug,
+        })),
+        likeCount: likeCounts.get(p.id) ?? 0,
+        commentCount: commentCounts.get(p.id) ?? 0,
+      })),
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Admin (all authors, all statuses)
+  // ---------------------------------------------------------------------------
+
+  async findAllAdmin(query?: {
+    status?: string;
+    authorId?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) {
+    const page = query?.page && query.page > 0 ? query.page : 1;
+    const limit =
+      query?.limit && query.limit > 0 ? Math.min(query.limit, 100) : 20;
+    const offset = (page - 1) * limit;
+    const status =
+      query?.status && query.status !== 'ALL' ? query.status : undefined;
+    const authorId = query?.authorId?.trim();
+    const search = query?.search?.trim();
+
+    // Two independent builders: Prisma 8 RC has no top-level .count(), and we
+    // must not let pagination on the list query bleed into the total count.
+    const buildBase = () =>
+      applyBlogAdminFilters(
+        this.prisma.orm.public.BlogPost.where(
+          status ? ({ status } as any) : {},
+        ),
+        authorId,
+        search,
+      );
+
+    const posts = await buildBase()
+      .include('author', (a) =>
+        a.select('id', 'fullName', 'username', 'avatarUrl'),
+      )
+      .orderBy((p) => p.updatedAt.desc())
+      .limit(limit)
+      .offset(offset)
+      .all();
+
+    const total = (await buildBase().all()).length;
 
     return {
       posts: posts.map((p) => ({
@@ -254,19 +361,61 @@ export class BlogService {
         publishedAt: p.publishedAt,
         readingTime: p.readingTime,
         author: {
-          id: (p.author as any).id,
-          name: (p.author as any).fullName,
-          username: (p.author as any).username,
-          avatarUrl: (p.author as any).avatarUrl,
+          id: p.author.id,
+          name: p.author.fullName,
+          username: p.author.username,
+          avatarUrl: p.author.avatarUrl,
         },
-        categories: (p.categories as any[]).map((c: any) => ({
-          id: c.category.id,
-          name: c.category.name,
-          slug: c.category.slug,
-        })),
-        likeCount: likeCounts.get(p.id) ?? 0,
-        commentCount: commentCounts.get(p.id) ?? 0,
       })),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async findAdminById(postId: string) {
+    const post = await this.prisma.orm.public.BlogPost.where({ id: postId })
+      .include('author', (a) =>
+        a.select('id', 'fullName', 'username', 'avatarUrl'),
+      )
+      .include('categories', (c) =>
+        c.include('category', (cat) => cat.select('id', 'name', 'slug')),
+      )
+      .first();
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    const { likeCounts, commentCounts } = await getCountsForPosts(this.prisma, [
+      post.id,
+    ]);
+
+    return {
+      id: post.id,
+      title: post.title,
+      slug: post.slug,
+      excerpt: post.excerpt,
+      content: post.content,
+      coverImage: post.coverImage,
+      status: post.status,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+      publishedAt: post.publishedAt,
+      readingTime: post.readingTime,
+      author: {
+        id: post.author.id,
+        name: post.author.fullName,
+        username: post.author.username,
+        avatarUrl: post.author.avatarUrl,
+      },
+      categories: (post.categories as any[]).map((c: any) => ({
+        id: c.category.id,
+        name: c.category.name,
+        slug: c.category.slug,
+      })),
+      likeCount: likeCounts.get(post.id) ?? 0,
+      commentCount: commentCounts.get(post.id) ?? 0,
     };
   }
 
@@ -302,8 +451,7 @@ export class BlogService {
       coverImage: dto.coverImage || null,
       status: (dto.status || 'DRAFT') as any,
       readingTime,
-      publishedAt:
-        dto.status === 'PUBLISHED' ? new Date().toISOString() : null,
+      publishedAt: dto.status === 'PUBLISHED' ? new Date().toISOString() : null,
       authorId,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -321,14 +469,19 @@ export class BlogService {
     return this.findBySlug(post.slug, authorId);
   }
 
-  async update(postId: string, userId: string, dto: UpdatePostDto) {
+  async update(
+    postId: string,
+    userId: string,
+    dto: UpdatePostDto,
+    role?: string,
+  ) {
     const post = await this.prisma.orm.public.BlogPost.where({
       id: postId,
     }).first();
     if (!post) {
       throw new NotFoundException('Post not found');
     }
-    if (post.authorId !== userId) {
+    if (post.authorId !== userId && role !== 'ADMIN') {
       throw new ForbiddenException('Not the author');
     }
 
@@ -488,10 +641,10 @@ export class BlogService {
         body: c.body,
         createdAt: c.createdAt,
         author: {
-          id: (c.author as any).id,
-          name: (c.author as any).fullName,
-          username: (c.author as any).username,
-          avatarUrl: (c.author as any).avatarUrl,
+          id: c.author.id,
+          name: c.author.fullName,
+          username: c.author.username,
+          avatarUrl: c.author.avatarUrl,
         },
         replies: (c.replies as any[]).map((r: any) => ({
           id: r.id,
@@ -540,7 +693,7 @@ export class BlogService {
 
     return {
       id: comment.id,
-      body: comment.body, 
+      body: comment.body,
       createdAt: comment.createdAt,
     };
   }
@@ -589,8 +742,9 @@ export class BlogService {
       return new Set();
     }
 
-    const likes = await this.prisma.orm.public.BlogPostLike
-      .where((l) => l.userId.eq(userId))
+    const likes = await this.prisma.orm.public.BlogPostLike.where((l) =>
+      l.userId.eq(userId),
+    )
       .where((l) => l.postId.in(postIds))
       .all();
 

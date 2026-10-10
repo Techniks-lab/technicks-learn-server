@@ -29,6 +29,7 @@ import { CreateCourseDto } from './dto/create-course.dto.js';
 import { UpdateCourseDto } from './dto/update-course.dto.js';
 import { CourseCheckInDto } from './dto/course-check-in.dto.js';
 import { CreateCourseCategoryDto } from './dto/create-course-category.dto.js';
+import { UpdateCourseCategoryDto } from './dto/update-course-category.dto.js';
 
 @ApiTags('Courses')
 @Controller('courses')
@@ -67,6 +68,19 @@ export class CoursesController {
     return this.coursesService.createCategory(dto);
   }
 
+  @Patch('categories/:id')
+  @Version('1')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.INSTRUCTOR)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Update a course category (admin or instructor)' })
+  async updateCategory(
+    @Param('id') id: string,
+    @Body() dto: UpdateCourseCategoryDto,
+  ) {
+    return this.coursesService.updateCategory(id, dto);
+  }
+
   @Delete('categories/:id')
   @Version('1')
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -94,6 +108,46 @@ export class CoursesController {
   @ApiOperation({ summary: 'Courses you are enrolled in with streaks' })
   async findMine(@Req() req: any) {
     return this.coursesService.findMine(req.user.id);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Admin listing (drafts included) — declared before :slug so "admin" is
+  // never captured as a slug parameter.
+  // ---------------------------------------------------------------------------
+
+  @Get('admin')
+  @Version('1')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.INSTRUCTOR)
+  @ApiBearerAuth('access-token')
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    type: String,
+    enum: ['DRAFT', 'PUBLISHED', 'ALL'],
+  })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiOperation({
+    summary: 'List all courses including drafts (admin or instructor)',
+  })
+  async findAllAdmin(
+    @Query('status') status?: string,
+    @Query('search') search?: string,
+  ) {
+    return this.coursesService.findAllAdmin({ status, search });
+  }
+
+  @Get('admin/:id')
+  @Version('1')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.INSTRUCTOR)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary:
+      'Course detail with all lessons including drafts (admin or instructor)',
+  })
+  async findAdminById(@Param('id') id: string) {
+    return this.coursesService.findAdminById(id);
   }
 
   @Get(':slug')
@@ -133,7 +187,9 @@ export class CoursesController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Unenroll from a course (deletes enrollment + check-ins)' })
+  @ApiOperation({
+    summary: 'Unenroll from a course (deletes enrollment + check-ins)',
+  })
   async unenroll(@Param('slug') slug: string, @Req() req: any) {
     return this.coursesService.unenroll(slug, req.user.id);
   }

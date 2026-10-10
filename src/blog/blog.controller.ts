@@ -22,6 +22,9 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard.js';
+import { RolesGuard } from '../auth/guards/roles.guard.js';
+import { Roles } from '../auth/decorators/roles.decorators.js';
+import { UserRole } from '../auth/enums/user-role.enum.js';
 import { BlogService } from './blog.service.js';
 import { CreatePostDto } from './dto/create-post.dto.js';
 import { UpdatePostDto } from './dto/update-post.dto.js';
@@ -67,9 +70,72 @@ export class BlogController {
   @Version('1')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Get the current user\'s blog posts (any status)' })
-  async findMine(@Req() req: any) {
-    return this.blogService.findMyPosts(req.user.id);
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    type: String,
+    enum: ['DRAFT', 'PUBLISHED', 'ARCHIVED', 'ALL'],
+  })
+  @ApiOperation({ summary: "Get the current user's blog posts (any status)" })
+  async findMine(
+    @Req() req: any,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('status') status?: string,
+  ) {
+    return this.blogService.findMyPosts(
+      req.user.id,
+      parseInt(page || '1', 10),
+      parseInt(limit || '20', 10),
+      status,
+    );
+  }
+
+  @Get('admin')
+  @Version('1')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.INSTRUCTOR)
+  @ApiBearerAuth('access-token')
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    type: String,
+    enum: ['DRAFT', 'PUBLISHED', 'ARCHIVED', 'ALL'],
+  })
+  @ApiQuery({ name: 'authorId', required: false, type: String })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiOperation({
+    summary:
+      'List all blog posts including drafts and other authors (admin or instructor)',
+  })
+  async findAllAdmin(
+    @Query('status') status?: string,
+    @Query('authorId') authorId?: string,
+    @Query('search') search?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.blogService.findAllAdmin({
+      status,
+      authorId,
+      search,
+      page: parseInt(page || '1', 10),
+      limit: parseInt(limit || '20', 10),
+    });
+  }
+
+  @Get('admin/:id')
+  @Version('1')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.INSTRUCTOR)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Get any blog post by id (admin or instructor)' })
+  async findAdminById(@Param('id') id: string) {
+    return this.blogService.findAdminById(id);
   }
 
   @Get(':slug')
@@ -82,10 +148,11 @@ export class BlogController {
 
   @Post()
   @Version('1')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.INSTRUCTOR)
   @ApiBearerAuth('access-token')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a blog post' })
+  @ApiOperation({ summary: 'Create a blog post (admin or instructor)' })
   async create(@Req() req: any, @Body() dto: CreatePostDto) {
     return this.blogService.create(req.user.id, dto);
   }
@@ -94,13 +161,13 @@ export class BlogController {
   @Version('1')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Update a blog post (author only)' })
+  @ApiOperation({ summary: 'Update a blog post (author or admin)' })
   async update(
     @Param('id') id: string,
     @Req() req: any,
     @Body() dto: UpdatePostDto,
   ) {
-    return this.blogService.update(id, req.user.id, dto);
+    return this.blogService.update(id, req.user.id, dto, req.user.role);
   }
 
   @Delete(':id')
@@ -165,6 +232,10 @@ export class BlogController {
     @Param('commentId') commentId: string,
     @Req() req: any,
   ) {
-    return this.blogService.removeComment(commentId, req.user.id, req.user.role);
+    return this.blogService.removeComment(
+      commentId,
+      req.user.id,
+      req.user.role,
+    );
   }
 }

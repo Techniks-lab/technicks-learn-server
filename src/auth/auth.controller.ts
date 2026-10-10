@@ -190,9 +190,10 @@ export class AuthController {
   @ApiBody({ type: ResetPasswordDto })
   @ApiResponse({ status: 200, description: 'Password reset successfully' })
   @ApiResponse({ status: 400, description: 'Invalid or expired OTP' })
+  @ApiResponse({ status: 429, description: 'Too many reset attempts' })
   @HttpCode(HttpStatus.OK)
-  resetPassword(@Body() dto: ResetPasswordDto) {
-    return this.authService.resetPassword(dto);
+  resetPassword(@Body() dto: ResetPasswordDto, @Req() req: ExpressRequest) {
+    return this.authService.resetPassword(dto, req.ip);
   }
 
   @Post('change-password')

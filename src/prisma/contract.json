@@ -24,10 +24,6 @@
       "model": "BlogPostLike",
       "namespace": "public"
     },
-    "checkIn": {
-      "model": "CheckIn",
-      "namespace": "public"
-    },
     "competition": {
       "model": "Competition",
       "namespace": "public"
@@ -86,6 +82,10 @@
     },
     "user": {
       "model": "User",
+      "namespace": "public"
+    },
+    "userCheckIn": {
+      "model": "UserCheckIn",
       "namespace": "public"
     },
     "xpEvent": {
@@ -771,73 +771,6 @@
               "table": "blogPostLike"
             }
           },
-          "CheckIn": {
-            "fields": {
-              "createdAt": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "kind": "scalar"
-                }
-              },
-              "date": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "enrollmentId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/uuid@1",
-                  "kind": "scalar"
-                }
-              },
-              "id": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/uuid@1",
-                  "kind": "scalar"
-                }
-              }
-            },
-            "relations": {
-              "enrollment": {
-                "cardinality": "N:1",
-                "on": {
-                  "localFields": [
-                    "enrollmentId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "CourseEnrollment",
-                  "namespace": "public"
-                }
-              }
-            },
-            "storage": {
-              "fields": {
-                "createdAt": {
-                  "column": "createdAt"
-                },
-                "date": {
-                  "column": "date"
-                },
-                "enrollmentId": {
-                  "column": "enrollmentId"
-                },
-                "id": {
-                  "column": "id"
-                }
-              },
-              "namespaceId": "public",
-              "table": "checkIn"
-            }
-          },
           "Competition": {
             "fields": {
               "createdAt": {
@@ -1256,13 +1189,6 @@
                   "kind": "scalar"
                 }
               },
-              "currentStreak": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
               "enrolledAt": {
                 "nullable": false,
                 "type": {
@@ -1274,20 +1200,6 @@
                 "nullable": false,
                 "type": {
                   "codecId": "pg/uuid@1",
-                  "kind": "scalar"
-                }
-              },
-              "lastCheckInDate": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "longestStreak": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
                   "kind": "scalar"
                 }
               },
@@ -1313,21 +1225,6 @@
               }
             },
             "relations": {
-              "checkIns": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "enrollmentId"
-                  ]
-                },
-                "to": {
-                  "model": "CheckIn",
-                  "namespace": "public"
-                }
-              },
               "course": {
                 "cardinality": "N:1",
                 "on": {
@@ -1364,20 +1261,11 @@
                 "courseId": {
                   "column": "courseId"
                 },
-                "currentStreak": {
-                  "column": "currentStreak"
-                },
                 "enrolledAt": {
                   "column": "enrolledAt"
                 },
                 "id": {
                   "column": "id"
-                },
-                "lastCheckInDate": {
-                  "column": "lastCheckInDate"
-                },
-                "longestStreak": {
-                  "column": "longestStreak"
                 },
                 "status": {
                   "column": "status"
@@ -2341,6 +2229,13 @@
                   "kind": "scalar"
                 }
               },
+              "currentStreak": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "email": {
                 "nullable": false,
                 "type": {
@@ -2380,6 +2275,20 @@
                 "nullable": true,
                 "type": {
                   "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "lastCheckInDate": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "longestStreak": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
                   "kind": "scalar"
                 }
               },
@@ -2468,6 +2377,21 @@
                 },
                 "to": {
                   "model": "BlogPost",
+                  "namespace": "public"
+                }
+              },
+              "checkIns": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "UserCheckIn",
                   "namespace": "public"
                 }
               },
@@ -2615,6 +2539,9 @@
                 "createdAt": {
                   "column": "createdAt"
                 },
+                "currentStreak": {
+                  "column": "currentStreak"
+                },
                 "email": {
                   "column": "email"
                 },
@@ -2632,6 +2559,12 @@
                 },
                 "lastActiveAt": {
                   "column": "lastActiveAt"
+                },
+                "lastCheckInDate": {
+                  "column": "lastCheckInDate"
+                },
+                "longestStreak": {
+                  "column": "longestStreak"
                 },
                 "passwordHash": {
                   "column": "passwordHash"
@@ -2651,6 +2584,73 @@
               },
               "namespaceId": "public",
               "table": "user"
+            }
+          },
+          "UserCheckIn": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "date": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "user": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "date": {
+                  "column": "date"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "userId": {
+                  "column": "userId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "userCheckIn"
             }
           },
           "XpEvent": {
@@ -3238,76 +3238,6 @@
                 }
               ]
             },
-            "checkIn": {
-              "columns": {
-                "createdAt": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "default": {
-                    "expression": "now()",
-                    "kind": "function"
-                  },
-                  "nativeType": "timestamptz",
-                  "nullable": false
-                },
-                "date": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": false
-                },
-                "enrollmentId": {
-                  "codecId": "pg/uuid@1",
-                  "nativeType": "uuid",
-                  "nullable": false
-                },
-                "id": {
-                  "codecId": "pg/uuid@1",
-                  "nativeType": "uuid",
-                  "nullable": false
-                }
-              },
-              "foreignKeys": [
-                {
-                  "onDelete": "cascade",
-                  "source": {
-                    "columns": [
-                      "enrollmentId"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "checkIn"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "courseEnrollment"
-                  }
-                }
-              ],
-              "indexes": [
-                {
-                  "columns": [
-                    "enrollmentId"
-                  ],
-                  "name": "checkIn_enrollmentId_idx_ee5e79c5",
-                  "prefix": "checkIn_enrollmentId_idx",
-                  "unique": false
-                }
-              ],
-              "primaryKey": {
-                "columns": [
-                  "id"
-                ]
-              },
-              "uniques": [
-                {
-                  "columns": [
-                    "enrollmentId",
-                    "date"
-                  ]
-                }
-              ]
-            },
             "competition": {
               "columns": {
                 "createdAt": {
@@ -3679,15 +3609,6 @@
                   "nativeType": "uuid",
                   "nullable": false
                 },
-                "currentStreak": {
-                  "codecId": "pg/int4@1",
-                  "default": {
-                    "kind": "literal",
-                    "value": 0
-                  },
-                  "nativeType": "int4",
-                  "nullable": false
-                },
                 "enrolledAt": {
                   "codecId": "pg/timestamptz-string@1",
                   "default": {
@@ -3700,20 +3621,6 @@
                 "id": {
                   "codecId": "pg/uuid@1",
                   "nativeType": "uuid",
-                  "nullable": false
-                },
-                "lastCheckInDate": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": true
-                },
-                "longestStreak": {
-                  "codecId": "pg/int4@1",
-                  "default": {
-                    "kind": "literal",
-                    "value": 0
-                  },
-                  "nativeType": "int4",
                   "nullable": false
                 },
                 "status": {
@@ -4692,6 +4599,15 @@
                   "nativeType": "timestamptz",
                   "nullable": false
                 },
+                "currentStreak": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
                 "email": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
@@ -4729,6 +4645,20 @@
                   "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
                   "nullable": true
+                },
+                "lastCheckInDate": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "longestStreak": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
                 },
                 "passwordHash": {
                   "codecId": "pg/text@1",
@@ -4790,6 +4720,76 @@
                 {
                   "columns": [
                     "username"
+                  ]
+                }
+              ]
+            },
+            "userCheckIn": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "date": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": false
+                },
+                "userId": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "userCheckIn"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "userId"
+                  ],
+                  "name": "userCheckIn_userId_idx_a489d58a",
+                  "prefix": "userCheckIn_userId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "userId",
+                    "date"
                   ]
                 }
               ]
@@ -4937,10 +4937,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "872ed9997a887e485a3783316a81f6c8e84fd68ba475a2fd37a5361bc23e5ab7"
+    "storageHash": "651b69564d27486cb179485e39f32ababff87c235e690966c7d124e5c86e7512"
   },
   "execution": {
-    "executionHash": "527d3002bc3f2871c2110f3c5eebf60da5ba538b17deee2bea1daab495503845",
+    "executionHash": "896da69873be5c34ef47e7e27632131753000b0cead9e127b16854c12c9c39a4",
     "mutations": {
       "defaults": [
         {
@@ -4985,17 +4985,6 @@
             "column": "id",
             "namespace": "public",
             "table": "blogPostLike"
-          }
-        },
-        {
-          "onCreate": {
-            "id": "uuidv4",
-            "kind": "generator"
-          },
-          "ref": {
-            "column": "id",
-            "namespace": "public",
-            "table": "checkIn"
           }
         },
         {
@@ -5161,6 +5150,17 @@
             "column": "id",
             "namespace": "public",
             "table": "user"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "userCheckIn"
           }
         },
         {

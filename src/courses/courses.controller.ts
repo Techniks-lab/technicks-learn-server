@@ -27,7 +27,6 @@ import { UserRole } from '../auth/enums/user-role.enum.js';
 import { CoursesService } from './courses.service.js';
 import { CreateCourseDto } from './dto/create-course.dto.js';
 import { UpdateCourseDto } from './dto/update-course.dto.js';
-import { CourseCheckInDto } from './dto/course-check-in.dto.js';
 import { CreateCourseCategoryDto } from './dto/create-course-category.dto.js';
 import { UpdateCourseCategoryDto } from './dto/update-course-category.dto.js';
 
@@ -166,20 +165,6 @@ export class CoursesController {
   @ApiOperation({ summary: 'Enroll in a course (idempotent)' })
   async enroll(@Param('slug') slug: string, @Req() req: any) {
     return this.coursesService.enroll(slug, req.user.id);
-  }
-
-  @Post(':slug/check-in')
-  @Version('1')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access-token')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Daily course check-in — starts streak, awards XP' })
-  async checkIn(
-    @Param('slug') slug: string,
-    @Req() req: any,
-    @Body() dto: CourseCheckInDto,
-  ) {
-    return this.coursesService.checkIn(slug, req.user.id, dto.date);
   }
 
   @Post(':slug/unenroll')

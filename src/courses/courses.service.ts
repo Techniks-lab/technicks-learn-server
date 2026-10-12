@@ -3,10 +3,8 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { XpService } from '../gamification/xp.service.js';
 import { CreateCourseDto } from './dto/create-course.dto.js';
 import { UpdateCourseDto } from './dto/update-course.dto.js';
 import { CreateCourseCategoryDto } from './dto/create-course-category.dto.js';
@@ -19,53 +17,9 @@ function slugify(text: string): string {
     .slice(0, 200);
 }
 
-function toDateKey(d: Date): string {
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${d.getFullYear()}-${m}-${day}`;
-}
-
-function addDays(key: string, n: number): string {
-  const [y, m, d] = key.split('-').map(Number);
-  return toDateKey(new Date(y, m - 1, d + n));
-}
-
-function computeStreaks(
-  dates: string[],
-  today: string,
-): { streak: number; longestStreak: number } {
-  const set = new Set(dates);
-
-  let cursor = set.has(today) ? today : addDays(today, -1);
-  let streak = 0;
-  while (set.has(cursor)) {
-    streak += 1;
-    cursor = addDays(cursor, -1);
-  }
-
-  const unique = [...set].sort().reverse();
-  let longest = 0;
-  let run = 0;
-  let prev: string | null = null;
-  for (const d of unique) {
-    if (prev !== null && addDays(d, 1) === prev) {
-      run += 1;
-    } else {
-      run = 1;
-    }
-    longest = Math.max(longest, run);
-    prev = d;
-  }
-
-  return { streak, longestStreak: longest };
-}
-
 @Injectable()
 export class CoursesService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly xpService: XpService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   // ---------------------------------------------------------------------------
   // Public catalog
@@ -141,9 +95,6 @@ export class CoursesService {
           enrollment: enrollment
             ? {
                 status: enrollment.status,
-                currentStreak: enrollment.currentStreak,
-                longestStreak: enrollment.longestStreak,
-                lastCheckInDate: enrollment.lastCheckInDate,
                 enrolledAt: enrollment.enrolledAt,
               }
             : null,
@@ -205,9 +156,6 @@ export class CoursesService {
             id: e.id,
             status: e.status,
             enrolledAt: e.enrolledAt,
-            currentStreak: e.currentStreak,
-            longestStreak: e.longestStreak,
-            lastCheckInDate: e.lastCheckInDate,
             completedLessonCount: completedByCourse.get(course.id) ?? 0,
           },
         };
@@ -270,9 +218,6 @@ export class CoursesService {
             id: enrollment.id,
             status: enrollment.status,
             enrolledAt: enrollment.enrolledAt,
-            currentStreak: enrollment.currentStreak,
-            longestStreak: enrollment.longestStreak,
-            lastCheckInDate: enrollment.lastCheckInDate,
           }
         : null,
       lessons: lessons.map((l) => ({
@@ -308,8 +253,6 @@ export class CoursesService {
           id: existing.id,
           status: existing.status,
           enrolledAt: existing.enrolledAt,
-          currentStreak: existing.currentStreak,
-          longestStreak: existing.longestStreak,
         },
         course: { id: course.id, slug: course.slug, title: course.title },
       };
@@ -324,9 +267,6 @@ export class CoursesService {
         userId,
         status: 'ACTIVE',
         enrolledAt: now,
-        currentStreak: 0,
-        longestStreak: 0,
-        lastCheckInDate: null,
       });
     } catch (error) {
       const code = (error as { code?: string })?.code;
@@ -346,109 +286,8 @@ export class CoursesService {
         id: enrollment.id,
         status: enrollment.status,
         enrolledAt: enrollment.enrolledAt,
-        currentStreak: enrollment.currentStreak,
-        longestStreak: enrollment.longestStreak,
       },
       course: { id: course.id, slug: course.slug, title: course.title },
-    };
-  }
-
-  async checkIn(slug: string, userId: string, dateOverride?: string) {
-    const course = await this.prisma.orm.public.Course.where({ slug }).first();
-    if (!course || course.status !== 'PUBLISHED') {
-      throw new NotFoundException('Course not found');
-    }
-
-    const enrollment = await this.prisma.orm.public.CourseEnrollment.where({
-      courseId: course.id,
-      userId,
-    }).first();
-    if (!enrollment || enrollment.status !== 'ACTIVE') {
-      throw new UnauthorizedException('You are not enrolled in this course');
-    }
-
-    return this.recordDailyCheckIn(enrollment.id, userId, dateOverride);
-  }
-
-  /**
-   * Records today's check-in for an enrollment and recomputes the streak.
-   * Idempotent: repeated calls on the same date return the current state
-   * without awarding XP twice. This is what a passing quiz (and the manual
-   * check-in endpoint) both funnel through.
-   */
-  async recordDailyCheckIn(
-    enrollmentId: string,
-    userId: string,
-    dateOverride?: string,
-  ) {
-    const enrollment = await this.prisma.orm.public.CourseEnrollment.where({
-      id: enrollmentId,
-    }).first();
-    if (!enrollment || enrollment.status !== 'ACTIVE') {
-      throw new UnauthorizedException('You are not enrolled in this course');
-    }
-
-    const date = dateOverride || toDateKey(new Date());
-
-    const existing = await this.prisma.orm.public.CheckIn.where({
-      enrollmentId: enrollment.id,
-      date,
-    }).first();
-    if (existing) {
-      return {
-        checkedInToday: true,
-        streak: enrollment.currentStreak,
-        longestStreak: enrollment.longestStreak,
-        xpAwarded: 0,
-        xp: await this.xpService.currentXp(userId),
-      };
-    }
-
-    try {
-      await this.prisma.orm.public.CheckIn.create({
-        id: crypto.randomUUID(),
-        enrollmentId: enrollment.id,
-        date,
-        createdAt: new Date().toISOString(),
-      });
-    } catch (error) {
-      const code = (error as { code?: string })?.code;
-      if (code !== 'P2002' && code !== '23505') {
-        throw error;
-      }
-      return {
-        checkedInToday: true,
-        streak: enrollment.currentStreak,
-        longestStreak: enrollment.longestStreak,
-        xpAwarded: 0,
-        xp: await this.xpService.currentXp(userId),
-      };
-    }
-
-    const all = await this.prisma.orm.public.CheckIn.where({
-      enrollmentId: enrollment.id,
-    }).all();
-    const dates = all.map((c) => c.date);
-    const { streak, longestStreak } = computeStreaks(dates, date);
-
-    const bonus = Math.min(20, Math.max(0, (streak - 1) * 2));
-    const xpAwarded = 10 + bonus;
-    await this.xpService.award(userId, 'DAILY_CHECK_IN', xpAwarded);
-
-    await this.prisma.orm.public.CourseEnrollment.where({
-      id: enrollment.id,
-    }).update({
-      currentStreak: streak,
-      longestStreak: longestStreak,
-      lastCheckInDate: date,
-    });
-
-    return {
-      checkedInToday: true,
-      streak,
-      longestStreak,
-      xpAwarded,
-      xp: await this.xpService.currentXp(userId),
     };
   }
 

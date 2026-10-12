@@ -24,7 +24,7 @@ export class GamificationController {
   @Version('1')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Get your total XP' })
+  @ApiOperation({ summary: 'Get your total XP and global streak' })
   async getMe(@Req() req: any) {
     return this.gamificationService.getMe(req.user.id);
   }

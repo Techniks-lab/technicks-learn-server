@@ -33,9 +33,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'872ed9997a887e485a3783316a81f6c8e84fd68ba475a2fd37a5361bc23e5ab7'>;
+  StorageHashBase<'651b69564d27486cb179485e39f32ababff87c235e690966c7d124e5c86e7512'>;
 export type ExecutionHash =
-  ExecutionHashBase<'527d3002bc3f2871c2110f3c5eebf60da5ba538b17deee2bea1daab495503845'>;
+  ExecutionHashBase<'896da69873be5c34ef47e7e27632131753000b0cead9e127b16854c12c9c39a4'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -281,12 +281,6 @@ export type FieldOutputTypes = {
       readonly postId: CodecTypes['pg/uuid@1']['output'];
       readonly userId: CodecTypes['pg/uuid@1']['output'];
     };
-    readonly CheckIn: {
-      readonly id: CodecTypes['pg/uuid@1']['output'];
-      readonly date: CodecTypes['pg/text@1']['output'];
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly enrollmentId: CodecTypes['pg/uuid@1']['output'];
-    };
     readonly Competition: {
       readonly id: CodecTypes['pg/uuid@1']['output'];
       readonly startsAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -324,9 +318,6 @@ export type FieldOutputTypes = {
       readonly id: CodecTypes['pg/uuid@1']['output'];
       readonly status: 'ACTIVE' | 'COMPLETED';
       readonly enrolledAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly currentStreak: CodecTypes['pg/int4@1']['output'];
-      readonly longestStreak: CodecTypes['pg/int4@1']['output'];
-      readonly lastCheckInDate: CodecTypes['pg/text@1']['output'] | null;
       readonly courseId: CodecTypes['pg/uuid@1']['output'];
       readonly userId: CodecTypes['pg/uuid@1']['output'];
     };
@@ -418,9 +409,18 @@ export type FieldOutputTypes = {
       readonly isVerified: CodecTypes['pg/bool@1']['output'];
       readonly isActive: CodecTypes['pg/bool@1']['output'];
       readonly xp: CodecTypes['pg/int4@1']['output'];
+      readonly currentStreak: CodecTypes['pg/int4@1']['output'];
+      readonly longestStreak: CodecTypes['pg/int4@1']['output'];
+      readonly lastCheckInDate: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly lastActiveAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+    };
+    readonly UserCheckIn: {
+      readonly id: CodecTypes['pg/uuid@1']['output'];
+      readonly date: CodecTypes['pg/text@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly userId: CodecTypes['pg/uuid@1']['output'];
     };
     readonly XpEvent: {
       readonly id: CodecTypes['pg/uuid@1']['output'];
@@ -473,12 +473,6 @@ export type FieldInputTypes = {
       readonly postId: CodecTypes['pg/uuid@1']['input'];
       readonly userId: CodecTypes['pg/uuid@1']['input'];
     };
-    readonly CheckIn: {
-      readonly id: CodecTypes['pg/uuid@1']['input'];
-      readonly date: CodecTypes['pg/text@1']['input'];
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly enrollmentId: CodecTypes['pg/uuid@1']['input'];
-    };
     readonly Competition: {
       readonly id: CodecTypes['pg/uuid@1']['input'];
       readonly startsAt: CodecTypes['pg/timestamptz-string@1']['input'];
@@ -516,9 +510,6 @@ export type FieldInputTypes = {
       readonly id: CodecTypes['pg/uuid@1']['input'];
       readonly status: 'ACTIVE' | 'COMPLETED';
       readonly enrolledAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly currentStreak: CodecTypes['pg/int4@1']['input'];
-      readonly longestStreak: CodecTypes['pg/int4@1']['input'];
-      readonly lastCheckInDate: CodecTypes['pg/text@1']['input'] | null;
       readonly courseId: CodecTypes['pg/uuid@1']['input'];
       readonly userId: CodecTypes['pg/uuid@1']['input'];
     };
@@ -610,9 +601,18 @@ export type FieldInputTypes = {
       readonly isVerified: CodecTypes['pg/bool@1']['input'];
       readonly isActive: CodecTypes['pg/bool@1']['input'];
       readonly xp: CodecTypes['pg/int4@1']['input'];
+      readonly currentStreak: CodecTypes['pg/int4@1']['input'];
+      readonly longestStreak: CodecTypes['pg/int4@1']['input'];
+      readonly lastCheckInDate: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly lastActiveAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+    };
+    readonly UserCheckIn: {
+      readonly id: CodecTypes['pg/uuid@1']['input'];
+      readonly date: CodecTypes['pg/text@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly userId: CodecTypes['pg/uuid@1']['input'];
     };
     readonly XpEvent: {
       readonly id: CodecTypes['pg/uuid@1']['input'];
@@ -665,12 +665,6 @@ export type StorageColumnTypes = {
       readonly postId: CodecTypes['pg/uuid@1']['output'];
       readonly userId: CodecTypes['pg/uuid@1']['output'];
     };
-    readonly checkIn: {
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly date: CodecTypes['pg/text@1']['output'];
-      readonly enrollmentId: CodecTypes['pg/uuid@1']['output'];
-      readonly id: CodecTypes['pg/uuid@1']['output'];
-    };
     readonly competition: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly endsAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -706,11 +700,8 @@ export type StorageColumnTypes = {
     };
     readonly courseEnrollment: {
       readonly courseId: CodecTypes['pg/uuid@1']['output'];
-      readonly currentStreak: CodecTypes['pg/int4@1']['output'];
       readonly enrolledAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly id: CodecTypes['pg/uuid@1']['output'];
-      readonly lastCheckInDate: CodecTypes['pg/text@1']['output'] | null;
-      readonly longestStreak: CodecTypes['pg/int4@1']['output'];
       readonly status: 'ACTIVE' | 'COMPLETED';
       readonly userId: CodecTypes['pg/uuid@1']['output'];
     };
@@ -794,17 +785,26 @@ export type StorageColumnTypes = {
     readonly user: {
       readonly avatarUrl: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly currentStreak: CodecTypes['pg/int4@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly fullName: CodecTypes['pg/text@1']['output'] | null;
       readonly id: CodecTypes['pg/uuid@1']['output'];
       readonly isActive: CodecTypes['pg/bool@1']['output'];
       readonly isVerified: CodecTypes['pg/bool@1']['output'];
       readonly lastActiveAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+      readonly lastCheckInDate: CodecTypes['pg/text@1']['output'] | null;
+      readonly longestStreak: CodecTypes['pg/int4@1']['output'];
       readonly passwordHash: CodecTypes['pg/text@1']['output'];
       readonly role: 'STUDENT' | 'INSTRUCTOR' | 'ADMIN';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly username: CodecTypes['pg/text@1']['output'] | null;
       readonly xp: CodecTypes['pg/int4@1']['output'];
+    };
+    readonly userCheckIn: {
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly date: CodecTypes['pg/text@1']['output'];
+      readonly id: CodecTypes['pg/uuid@1']['output'];
+      readonly userId: CodecTypes['pg/uuid@1']['output'];
     };
     readonly xpEvent: {
       readonly amount: CodecTypes['pg/int4@1']['output'];
@@ -857,12 +857,6 @@ export type StorageColumnInputTypes = {
       readonly postId: CodecTypes['pg/uuid@1']['input'];
       readonly userId: CodecTypes['pg/uuid@1']['input'];
     };
-    readonly checkIn: {
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly date: CodecTypes['pg/text@1']['input'];
-      readonly enrollmentId: CodecTypes['pg/uuid@1']['input'];
-      readonly id: CodecTypes['pg/uuid@1']['input'];
-    };
     readonly competition: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly endsAt: CodecTypes['pg/timestamptz-string@1']['input'];
@@ -898,11 +892,8 @@ export type StorageColumnInputTypes = {
     };
     readonly courseEnrollment: {
       readonly courseId: CodecTypes['pg/uuid@1']['input'];
-      readonly currentStreak: CodecTypes['pg/int4@1']['input'];
       readonly enrolledAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly id: CodecTypes['pg/uuid@1']['input'];
-      readonly lastCheckInDate: CodecTypes['pg/text@1']['input'] | null;
-      readonly longestStreak: CodecTypes['pg/int4@1']['input'];
       readonly status: 'ACTIVE' | 'COMPLETED';
       readonly userId: CodecTypes['pg/uuid@1']['input'];
     };
@@ -986,17 +977,26 @@ export type StorageColumnInputTypes = {
     readonly user: {
       readonly avatarUrl: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly currentStreak: CodecTypes['pg/int4@1']['input'];
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly fullName: CodecTypes['pg/text@1']['input'] | null;
       readonly id: CodecTypes['pg/uuid@1']['input'];
       readonly isActive: CodecTypes['pg/bool@1']['input'];
       readonly isVerified: CodecTypes['pg/bool@1']['input'];
       readonly lastActiveAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+      readonly lastCheckInDate: CodecTypes['pg/text@1']['input'] | null;
+      readonly longestStreak: CodecTypes['pg/int4@1']['input'];
       readonly passwordHash: CodecTypes['pg/text@1']['input'];
       readonly role: 'STUDENT' | 'INSTRUCTOR' | 'ADMIN';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly username: CodecTypes['pg/text@1']['input'] | null;
       readonly xp: CodecTypes['pg/int4@1']['input'];
+    };
+    readonly userCheckIn: {
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly date: CodecTypes['pg/text@1']['input'];
+      readonly id: CodecTypes['pg/uuid@1']['input'];
+      readonly userId: CodecTypes['pg/uuid@1']['input'];
     };
     readonly xpEvent: {
       readonly amount: CodecTypes['pg/int4@1']['input'];
@@ -1385,55 +1385,6 @@ type ContractBase = Omit<
                 },
               ];
             };
-            readonly checkIn: {
-              columns: {
-                readonly id: {
-                  readonly nativeType: 'uuid';
-                  readonly codecId: 'pg/uuid@1';
-                  readonly nullable: false;
-                };
-                readonly date: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly createdAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                };
-                readonly enrollmentId: {
-                  readonly nativeType: 'uuid';
-                  readonly codecId: 'pg/uuid@1';
-                  readonly nullable: false;
-                };
-              };
-              primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [{ readonly columns: readonly ['enrollmentId', 'date'] }];
-              indexes: readonly [
-                {
-                  readonly name: 'checkIn_enrollmentId_idx_ee5e79c5';
-                  readonly prefix: 'checkIn_enrollmentId_idx';
-                  readonly columns: readonly ['enrollmentId'];
-                  readonly unique: false;
-                },
-              ];
-              foreignKeys: readonly [
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'checkIn';
-                    readonly columns: readonly ['enrollmentId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'courseEnrollment';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-              ];
-            };
             readonly competition: {
               columns: {
                 readonly id: {
@@ -1710,29 +1661,6 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-string@1';
                   readonly nullable: false;
                   readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                };
-                readonly currentStreak: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/int4@1', 0>;
-                  };
-                };
-                readonly longestStreak: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/int4@1', 0>;
-                  };
-                };
-                readonly lastCheckInDate: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
                 };
                 readonly courseId: {
                   readonly nativeType: 'uuid';
@@ -2508,6 +2436,29 @@ type ContractBase = Omit<
                     readonly value: DefaultLiteralValue<'pg/int4@1', 0>;
                   };
                 };
+                readonly currentStreak: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 0>;
+                  };
+                };
+                readonly longestStreak: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 0>;
+                  };
+                };
+                readonly lastCheckInDate: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
                 readonly createdAt: {
                   readonly nativeType: 'timestamptz';
                   readonly codecId: 'pg/timestamptz-string@1';
@@ -2533,6 +2484,55 @@ type ContractBase = Omit<
               ];
               indexes: readonly [];
               foreignKeys: readonly [];
+            };
+            readonly userCheckIn: {
+              columns: {
+                readonly id: {
+                  readonly nativeType: 'uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                };
+                readonly date: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly createdAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+                readonly userId: {
+                  readonly nativeType: 'uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [{ readonly columns: readonly ['userId', 'date'] }];
+              indexes: readonly [
+                {
+                  readonly name: 'userCheckIn_userId_idx_a489d58a';
+                  readonly prefix: 'userCheckIn_userId_idx';
+                  readonly columns: readonly ['userId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'userCheckIn';
+                    readonly columns: readonly ['userId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'user';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
             };
             readonly xpEvent: {
               columns: {
@@ -2695,7 +2695,10 @@ type ContractBase = Omit<
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'CompetitionMember';
     };
-    readonly checkIn: { readonly namespace: 'public' & NamespaceId; readonly model: 'CheckIn' };
+    readonly userCheckIn: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'UserCheckIn';
+    };
   };
   readonly domain: {
     readonly namespaces: {
@@ -3066,52 +3069,6 @@ type ContractBase = Omit<
               };
             };
           };
-          readonly CheckIn: {
-            readonly fields: {
-              readonly id: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
-              };
-              readonly date: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly createdAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-              readonly enrollmentId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
-              };
-            };
-            readonly relations: {
-              readonly enrollment: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'CourseEnrollment';
-                };
-                readonly cardinality: 'N:1';
-                readonly on: {
-                  readonly localFields: readonly ['enrollmentId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-            };
-            readonly storage: {
-              readonly table: 'checkIn';
-              readonly namespaceId: 'public';
-              readonly fields: {
-                readonly id: { readonly column: 'id' };
-                readonly date: { readonly column: 'date' };
-                readonly createdAt: { readonly column: 'createdAt' };
-                readonly enrollmentId: { readonly column: 'enrollmentId' };
-              };
-            };
-          };
           readonly Competition: {
             readonly fields: {
               readonly id: {
@@ -3403,18 +3360,6 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-string@1';
                 };
               };
-              readonly currentStreak: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly longestStreak: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly lastCheckInDate: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
               readonly courseId: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
@@ -3425,17 +3370,6 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
-              readonly checkIns: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'CheckIn';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['enrollmentId'];
-                };
-              };
               readonly course: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -3463,9 +3397,6 @@ type ContractBase = Omit<
                 readonly id: { readonly column: 'id' };
                 readonly status: { readonly column: 'status' };
                 readonly enrolledAt: { readonly column: 'enrolledAt' };
-                readonly currentStreak: { readonly column: 'currentStreak' };
-                readonly longestStreak: { readonly column: 'longestStreak' };
-                readonly lastCheckInDate: { readonly column: 'lastCheckInDate' };
                 readonly courseId: { readonly column: 'courseId' };
                 readonly userId: { readonly column: 'userId' };
               };
@@ -4108,6 +4039,18 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
               };
+              readonly currentStreak: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly longestStreak: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly lastCheckInDate: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
               readonly createdAt: {
                 readonly nullable: false;
                 readonly type: {
@@ -4162,6 +4105,17 @@ type ContractBase = Omit<
                 readonly on: {
                   readonly localFields: readonly ['id'];
                   readonly targetFields: readonly ['authorId'];
+                };
+              };
+              readonly checkIns: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'UserCheckIn';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['userId'];
                 };
               };
               readonly competitions: {
@@ -4278,9 +4232,55 @@ type ContractBase = Omit<
                 readonly isVerified: { readonly column: 'isVerified' };
                 readonly isActive: { readonly column: 'isActive' };
                 readonly xp: { readonly column: 'xp' };
+                readonly currentStreak: { readonly column: 'currentStreak' };
+                readonly longestStreak: { readonly column: 'longestStreak' };
+                readonly lastCheckInDate: { readonly column: 'lastCheckInDate' };
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
                 readonly lastActiveAt: { readonly column: 'lastActiveAt' };
+              };
+            };
+          };
+          readonly UserCheckIn: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+              readonly date: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly userId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+            };
+            readonly relations: {
+              readonly user: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly on: {
+                  readonly localFields: readonly ['userId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'userCheckIn';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly date: { readonly column: 'date' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly userId: { readonly column: 'userId' };
               };
             };
           };
@@ -4450,14 +4450,6 @@ type ContractBase = Omit<
         {
           readonly ref: {
             readonly namespace: 'public';
-            readonly table: 'checkIn';
-            readonly column: 'id';
-          };
-          readonly onCreate: { readonly kind: 'generator'; readonly id: 'uuidv4' };
-        },
-        {
-          readonly ref: {
-            readonly namespace: 'public';
             readonly table: 'competition';
             readonly column: 'id';
           };
@@ -4571,6 +4563,14 @@ type ContractBase = Omit<
           readonly ref: {
             readonly namespace: 'public';
             readonly table: 'user';
+            readonly column: 'id';
+          };
+          readonly onCreate: { readonly kind: 'generator'; readonly id: 'uuidv4' };
+        },
+        {
+          readonly ref: {
+            readonly namespace: 'public';
+            readonly table: 'userCheckIn';
             readonly column: 'id';
           };
           readonly onCreate: { readonly kind: 'generator'; readonly id: 'uuidv4' };

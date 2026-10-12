@@ -11,7 +11,7 @@ import { CreateLessonDto } from './dto/create-lesson.dto.js';
 import { UpdateLessonDto } from './dto/update-lesson.dto.js';
 import { LessonQuizDto } from './dto/lesson-quiz.dto.js';
 import { XpService } from '../gamification/xp.service.js';
-import { CoursesService } from '../courses/courses.service.js';
+import { GamificationService } from '../gamification/gamification.service.js';
 
 function slugify(text: string): string {
   return text
@@ -90,7 +90,7 @@ export class LearnService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly xpService: XpService,
-    private readonly coursesService: CoursesService,
+    private readonly gamificationService: GamificationService,
   ) {}
 
   private async getCompletedIds(userId?: string): Promise<Set<string>> {
@@ -390,12 +390,10 @@ export class LearnService {
       });
     }
 
-    // A passing quiz is the day's learning activity, so it records the daily
-    // check-in for the course — this is what grows the streak now, and the
+    // A passing quiz is the day's learning activity, so it records the user's
+    // global daily check-in — this is what grows the streak now, and the
     // manual "Check in" button is no longer needed.
-    const checkIn = passed
-      ? await this.recordCourseCheckIn(lesson.courseId, userId)
-      : null;
+    const checkIn = passed ? await this.recordUserCheckIn(userId) : null;
 
     return {
       lessonId: lesson.id,
@@ -408,19 +406,9 @@ export class LearnService {
     };
   }
 
-  private async recordCourseCheckIn(courseId: string, userId: string) {
-    const enrollment = await this.prisma.orm.public.CourseEnrollment.where({
-      courseId,
-      userId,
-    }).first();
-    if (!enrollment || enrollment.status !== 'ACTIVE') {
-      return null;
-    }
+  private async recordUserCheckIn(userId: string) {
     try {
-      return await this.coursesService.recordDailyCheckIn(
-        enrollment.id,
-        userId,
-      );
+      return await this.gamificationService.recordDailyCheckIn(userId);
     } catch (error) {
       this.logger.error(
         `Quiz passed but failed to record daily check-in for user ${userId}`,

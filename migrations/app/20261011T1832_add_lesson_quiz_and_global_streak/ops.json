@@ -1,0 +1,978 @@
+[
+  {
+    "id": "dropTable.checkIn",
+    "label": "Drop table \"checkIn\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "checkIn"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"checkIn\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"checkIn\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"checkIn\"",
+        "sql": "DROP TABLE \"public\".\"checkIn\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"checkIn\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"checkIn\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.courseEnrollment.currentStreak",
+    "label": "Drop column \"currentStreak\" from \"courseEnrollment\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "currentStreak",
+        "table": "courseEnrollment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"currentStreak\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "courseEnrollment",
+          "currentStreak"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"currentStreak\"",
+        "sql": "ALTER TABLE \"public\".\"courseEnrollment\" DROP COLUMN \"currentStreak\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"currentStreak\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "courseEnrollment",
+          "currentStreak"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.courseEnrollment.lastCheckInDate",
+    "label": "Drop column \"lastCheckInDate\" from \"courseEnrollment\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "lastCheckInDate",
+        "table": "courseEnrollment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"lastCheckInDate\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "courseEnrollment",
+          "lastCheckInDate"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"lastCheckInDate\"",
+        "sql": "ALTER TABLE \"public\".\"courseEnrollment\" DROP COLUMN \"lastCheckInDate\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"lastCheckInDate\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "courseEnrollment",
+          "lastCheckInDate"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.courseEnrollment.longestStreak",
+    "label": "Drop column \"longestStreak\" from \"courseEnrollment\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "longestStreak",
+        "table": "courseEnrollment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"longestStreak\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "courseEnrollment",
+          "longestStreak"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"longestStreak\"",
+        "sql": "ALTER TABLE \"public\".\"courseEnrollment\" DROP COLUMN \"longestStreak\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"longestStreak\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "courseEnrollment",
+          "longestStreak"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropCheckConstraint.lessonBlock.lessonBlock_kind_check_710f4413",
+    "label": "Drop check constraint \"lessonBlock_kind_check_710f4413\" on \"lessonBlock\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "lessonBlock_kind_check_710f4413",
+        "table": "lessonBlock"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"lessonBlock_kind_check_710f4413\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessonBlock_kind_check_710f4413",
+          "public",
+          "\"public\".\"lessonBlock\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"lessonBlock_kind_check_710f4413\"",
+        "sql": "ALTER TABLE \"public\".\"lessonBlock\" DROP CONSTRAINT \"lessonBlock_kind_check_710f4413\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"lessonBlock_kind_check_710f4413\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessonBlock_kind_check_710f4413",
+          "public",
+          "\"public\".\"lessonBlock\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.lessonQuizAnswer",
+    "label": "Create table \"lessonQuizAnswer\"",
+    "summary": "Creates table \"lessonQuizAnswer\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "lessonQuizAnswer"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"lessonQuizAnswer\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonQuizAnswer\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"lessonQuizAnswer\"",
+        "sql": "CREATE TABLE \"public\".\"lessonQuizAnswer\" (\n  \"answeredAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"attemptId\" uuid NOT NULL,\n  \"correctIndex\" int4 DEFAULT 0 NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"isCorrect\" bool DEFAULT false NOT NULL,\n  \"questionIndex\" int4 DEFAULT 0 NOT NULL,\n  \"selectedIndex\" int4,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"lessonQuizAnswer\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonQuizAnswer\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.lessonQuizAttempt",
+    "label": "Create table \"lessonQuizAttempt\"",
+    "summary": "Creates table \"lessonQuizAttempt\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "lessonQuizAttempt"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"lessonQuizAttempt\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonQuizAttempt\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"lessonQuizAttempt\"",
+        "sql": "CREATE TABLE \"public\".\"lessonQuizAttempt\" (\n  \"answeredAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"lessonId\" uuid NOT NULL,\n  \"passed\" bool DEFAULT false NOT NULL,\n  \"score\" int4 DEFAULT 0 NOT NULL,\n  \"total\" int4 DEFAULT 0 NOT NULL,\n  \"userId\" uuid NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"lessonQuizAttempt\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonQuizAttempt\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.userCheckIn",
+    "label": "Create table \"userCheckIn\"",
+    "summary": "Creates table \"userCheckIn\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "userCheckIn"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"userCheckIn\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"userCheckIn\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"userCheckIn\"",
+        "sql": "CREATE TABLE \"public\".\"userCheckIn\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"date\" text NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"userId\" uuid NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"userCheckIn\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"userCheckIn\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.lessonBlock.data",
+    "label": "Add column \"data\" to \"lessonBlock\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "data",
+        "table": "lessonBlock"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"data\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "lessonBlock",
+          "data"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"data\"",
+        "sql": "ALTER TABLE \"public\".\"lessonBlock\" ADD COLUMN \"data\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"data\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "lessonBlock",
+          "data"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.user.currentStreak",
+    "label": "Add column \"currentStreak\" to \"user\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "currentStreak",
+        "table": "user"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"currentStreak\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "user",
+          "currentStreak"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"currentStreak\"",
+        "sql": "ALTER TABLE \"public\".\"user\" ADD COLUMN \"currentStreak\" int4 DEFAULT 0 NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"currentStreak\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "user",
+          "currentStreak"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.user.lastCheckInDate",
+    "label": "Add column \"lastCheckInDate\" to \"user\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "lastCheckInDate",
+        "table": "user"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"lastCheckInDate\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "user",
+          "lastCheckInDate"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"lastCheckInDate\"",
+        "sql": "ALTER TABLE \"public\".\"user\" ADD COLUMN \"lastCheckInDate\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"lastCheckInDate\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "user",
+          "lastCheckInDate"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.user.longestStreak",
+    "label": "Add column \"longestStreak\" to \"user\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "longestStreak",
+        "table": "user"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"longestStreak\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "user",
+          "longestStreak"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"longestStreak\"",
+        "sql": "ALTER TABLE \"public\".\"user\" ADD COLUMN \"longestStreak\" int4 DEFAULT 0 NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"longestStreak\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "user",
+          "longestStreak"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.lessonBlock.lessonBlock_kind_check_c40bb5bc",
+    "label": "Add check constraint \"lessonBlock_kind_check_c40bb5bc\" on \"lessonBlock\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "lessonBlock_kind_check_c40bb5bc",
+        "table": "lessonBlock"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"lessonBlock_kind_check_c40bb5bc\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessonBlock_kind_check_c40bb5bc",
+          "public",
+          "\"public\".\"lessonBlock\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"lessonBlock_kind_check_c40bb5bc\"",
+        "sql": "ALTER TABLE \"public\".\"lessonBlock\" ADD CONSTRAINT \"lessonBlock_kind_check_c40bb5bc\" CHECK (\"kind\" IN ('HEADING', 'TEXT', 'IMAGE', 'VIDEO', 'QUIZ'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"lessonBlock_kind_check_c40bb5bc\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessonBlock_kind_check_c40bb5bc",
+          "public",
+          "\"public\".\"lessonBlock\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.userCheckIn.userCheckIn_userId_date_key",
+    "label": "Add unique constraint on \"userCheckIn\" (userId, date)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "userCheckIn_userId_date_key",
+        "table": "userCheckIn"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"userCheckIn_userId_date_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "userCheckIn_userId_date_key",
+          "public",
+          "\"public\".\"userCheckIn\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"userCheckIn_userId_date_key\"",
+        "sql": "ALTER TABLE \"public\".\"userCheckIn\" ADD CONSTRAINT \"userCheckIn_userId_date_key\" UNIQUE (\"userId\", \"date\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"userCheckIn_userId_date_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "userCheckIn_userId_date_key",
+          "public",
+          "\"public\".\"userCheckIn\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.lessonQuizAnswer.lessonQuizAnswer_attemptId_idx_94f50eb9",
+    "label": "Create index \"lessonQuizAnswer_attemptId_idx_94f50eb9\" on \"lessonQuizAnswer\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "lessonQuizAnswer_attemptId_idx_94f50eb9",
+        "table": "lessonQuizAnswer"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"lessonQuizAnswer_attemptId_idx_94f50eb9\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonQuizAnswer_attemptId_idx_94f50eb9\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"lessonQuizAnswer_attemptId_idx_94f50eb9\"",
+        "sql": "CREATE INDEX \"lessonQuizAnswer_attemptId_idx_94f50eb9\" ON \"public\".\"lessonQuizAnswer\" (\"attemptId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"lessonQuizAnswer_attemptId_idx_94f50eb9\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonQuizAnswer_attemptId_idx_94f50eb9\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.lessonQuizAnswer.lessonQuizAnswer_questionIndex_idx_62f8021b",
+    "label": "Create index \"lessonQuizAnswer_questionIndex_idx_62f8021b\" on \"lessonQuizAnswer\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "lessonQuizAnswer_questionIndex_idx_62f8021b",
+        "table": "lessonQuizAnswer"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"lessonQuizAnswer_questionIndex_idx_62f8021b\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonQuizAnswer_questionIndex_idx_62f8021b\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"lessonQuizAnswer_questionIndex_idx_62f8021b\"",
+        "sql": "CREATE INDEX \"lessonQuizAnswer_questionIndex_idx_62f8021b\" ON \"public\".\"lessonQuizAnswer\" (\"questionIndex\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"lessonQuizAnswer_questionIndex_idx_62f8021b\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonQuizAnswer_questionIndex_idx_62f8021b\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.lessonQuizAttempt.lessonQuizAttempt_lessonId_idx_e358970d",
+    "label": "Create index \"lessonQuizAttempt_lessonId_idx_e358970d\" on \"lessonQuizAttempt\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "lessonQuizAttempt_lessonId_idx_e358970d",
+        "table": "lessonQuizAttempt"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"lessonQuizAttempt_lessonId_idx_e358970d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonQuizAttempt_lessonId_idx_e358970d\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"lessonQuizAttempt_lessonId_idx_e358970d\"",
+        "sql": "CREATE INDEX \"lessonQuizAttempt_lessonId_idx_e358970d\" ON \"public\".\"lessonQuizAttempt\" (\"lessonId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"lessonQuizAttempt_lessonId_idx_e358970d\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonQuizAttempt_lessonId_idx_e358970d\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.lessonQuizAttempt.lessonQuizAttempt_userId_idx_a489d58a",
+    "label": "Create index \"lessonQuizAttempt_userId_idx_a489d58a\" on \"lessonQuizAttempt\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "lessonQuizAttempt_userId_idx_a489d58a",
+        "table": "lessonQuizAttempt"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"lessonQuizAttempt_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonQuizAttempt_userId_idx_a489d58a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"lessonQuizAttempt_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"lessonQuizAttempt_userId_idx_a489d58a\" ON \"public\".\"lessonQuizAttempt\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"lessonQuizAttempt_userId_idx_a489d58a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonQuizAttempt_userId_idx_a489d58a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.lessonQuizAttempt.lessonQuizAttempt_userId_lessonId_idx_6c7e8579",
+    "label": "Create index \"lessonQuizAttempt_userId_lessonId_idx_6c7e8579\" on \"lessonQuizAttempt\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "lessonQuizAttempt_userId_lessonId_idx_6c7e8579",
+        "table": "lessonQuizAttempt"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"lessonQuizAttempt_userId_lessonId_idx_6c7e8579\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonQuizAttempt_userId_lessonId_idx_6c7e8579\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"lessonQuizAttempt_userId_lessonId_idx_6c7e8579\"",
+        "sql": "CREATE INDEX \"lessonQuizAttempt_userId_lessonId_idx_6c7e8579\" ON \"public\".\"lessonQuizAttempt\" (\"userId\", \"lessonId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"lessonQuizAttempt_userId_lessonId_idx_6c7e8579\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessonQuizAttempt_userId_lessonId_idx_6c7e8579\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.userCheckIn.userCheckIn_userId_idx_a489d58a",
+    "label": "Create index \"userCheckIn_userId_idx_a489d58a\" on \"userCheckIn\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "userCheckIn_userId_idx_a489d58a",
+        "table": "userCheckIn"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"userCheckIn_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"userCheckIn_userId_idx_a489d58a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"userCheckIn_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"userCheckIn_userId_idx_a489d58a\" ON \"public\".\"userCheckIn\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"userCheckIn_userId_idx_a489d58a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"userCheckIn_userId_idx_a489d58a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.lessonQuizAnswer.lessonQuizAnswer_attemptId_fkey",
+    "label": "Add foreign key \"lessonQuizAnswer_attemptId_fkey\" on \"lessonQuizAnswer\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "lessonQuizAnswer_attemptId_fkey",
+        "table": "lessonQuizAnswer"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"lessonQuizAnswer_attemptId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessonQuizAnswer_attemptId_fkey",
+          "public",
+          "\"public\".\"lessonQuizAnswer\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"lessonQuizAnswer_attemptId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"lessonQuizAnswer\"\nADD CONSTRAINT \"lessonQuizAnswer_attemptId_fkey\"\nFOREIGN KEY (\"attemptId\")\nREFERENCES \"public\".\"lessonQuizAttempt\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"lessonQuizAnswer_attemptId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessonQuizAnswer_attemptId_fkey",
+          "public",
+          "\"public\".\"lessonQuizAnswer\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.lessonQuizAttempt.lessonQuizAttempt_userId_fkey",
+    "label": "Add foreign key \"lessonQuizAttempt_userId_fkey\" on \"lessonQuizAttempt\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "lessonQuizAttempt_userId_fkey",
+        "table": "lessonQuizAttempt"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"lessonQuizAttempt_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessonQuizAttempt_userId_fkey",
+          "public",
+          "\"public\".\"lessonQuizAttempt\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"lessonQuizAttempt_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"lessonQuizAttempt\"\nADD CONSTRAINT \"lessonQuizAttempt_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"user\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"lessonQuizAttempt_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessonQuizAttempt_userId_fkey",
+          "public",
+          "\"public\".\"lessonQuizAttempt\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.lessonQuizAttempt.lessonQuizAttempt_lessonId_fkey",
+    "label": "Add foreign key \"lessonQuizAttempt_lessonId_fkey\" on \"lessonQuizAttempt\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "lessonQuizAttempt_lessonId_fkey",
+        "table": "lessonQuizAttempt"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"lessonQuizAttempt_lessonId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessonQuizAttempt_lessonId_fkey",
+          "public",
+          "\"public\".\"lessonQuizAttempt\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"lessonQuizAttempt_lessonId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"lessonQuizAttempt\"\nADD CONSTRAINT \"lessonQuizAttempt_lessonId_fkey\"\nFOREIGN KEY (\"lessonId\")\nREFERENCES \"public\".\"lesson\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"lessonQuizAttempt_lessonId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessonQuizAttempt_lessonId_fkey",
+          "public",
+          "\"public\".\"lessonQuizAttempt\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.userCheckIn.userCheckIn_userId_fkey",
+    "label": "Add foreign key \"userCheckIn_userId_fkey\" on \"userCheckIn\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "userCheckIn_userId_fkey",
+        "table": "userCheckIn"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"userCheckIn_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "userCheckIn_userId_fkey",
+          "public",
+          "\"public\".\"userCheckIn\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"userCheckIn_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"userCheckIn\"\nADD CONSTRAINT \"userCheckIn_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"user\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"userCheckIn_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "userCheckIn_userId_fkey",
+          "public",
+          "\"public\".\"userCheckIn\""
+        ]
+      }
+    ]
+  }
+]

@@ -11,6 +11,9 @@ model User {
   isVerified      Boolean  @default(false)
   isActive        Boolean  @default(true)
   xp              Int      @default(0)
+  currentStreak   Int      @default(0)
+  longestStreak   Int      @default(0)
+  lastCheckInDate String?
 
   createdAt       TimestamptzString @default(now())
   updatedAt       TimestamptzString @default(now())
@@ -29,6 +32,7 @@ model User {
   xpEvents        XpEvent[]
   competitions    CompetitionMember[]
   courseEnrollments CourseEnrollment[]
+  checkIns        UserCheckIn[]
 }
 
 enum UserRole {
@@ -232,16 +236,12 @@ model CourseEnrollment {
   id             Uuid              @id @default(uuid())
   status         EnrollmentStatus  @default(ACTIVE)
   enrolledAt     TimestamptzString @default(now())
-  currentStreak  Int               @default(0)
-  longestStreak  Int               @default(0)
-  lastCheckInDate String?
 
   // Relations
   courseId       Uuid
   course         Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
   userId         Uuid
   user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  checkIns       CheckIn[]
 
   @@unique([courseId, userId])
   @@index([userId])
@@ -373,14 +373,15 @@ model CompetitionMember {
   @@unique([competitionId, userId])
 }
 
-model CheckIn {
-  id        Uuid               @id @default(uuid())
+model UserCheckIn {
+  id        Uuid              @id @default(uuid())
   date      String
-  createdAt TimestamptzString  @default(now())
+  createdAt TimestamptzString @default(now())
 
   // Relations
-  enrollmentId Uuid
-  enrollment   CourseEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  userId    Uuid
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([enrollmentId, date])
+  @@unique([userId, date])
+  @@index([userId])
 }

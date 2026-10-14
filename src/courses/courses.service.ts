@@ -612,13 +612,18 @@ export class CoursesService {
       throw new NotFoundException('Course not found');
     }
 
+    const lessonIds = await this.lessonIdsForCourse(courseId);
+
+    // Cascade order: children first, then the course
     await this.prisma.orm.public.CourseEnrollment.where({ courseId }).delete();
-    await this.prisma.orm.public.LessonCompletion.where({
-      lessonId: await this.lessonIdsForCourse(courseId),
-    }).delete();
-    await this.prisma.orm.public.LessonBlock.where({
-      lessonId: await this.lessonIdsForCourse(courseId),
-    }).delete();
+    if (lessonIds.length > 0) {
+      await this.prisma.orm.public.LessonCompletion.where((c) =>
+        c.lessonId.in(lessonIds),
+      ).delete();
+      await this.prisma.orm.public.LessonBlock.where((b) =>
+        b.lessonId.in(lessonIds),
+      ).delete();
+    }
     await this.prisma.orm.public.Lesson.where({ courseId }).delete();
     await this.prisma.orm.public.Course.where({ id: courseId }).delete();
 

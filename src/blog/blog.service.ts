@@ -511,7 +511,10 @@ export class BlogService {
     );
 
     if (dto.categoryIds !== undefined) {
-      await this.prisma.orm.public.BlogPostCategory.where({ postId }).delete();
+      await this.prisma.deleteMany(
+        this.prisma.sql.public.blogPostCategory,
+        (f, fns) => fns.eq(f.postId, postId),
+      );
 
       for (const categoryId of dto.categoryIds) {
         await this.prisma.orm.public.BlogPostCategory.create({

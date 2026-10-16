@@ -565,7 +565,10 @@ export class LearnService {
 
     if (dto.blocks !== undefined) {
       this.assertValidQuizBlocks(dto.blocks);
-      await this.prisma.orm.public.LessonBlock.where({ lessonId }).delete();
+      await this.prisma.deleteMany(
+        this.prisma.sql.public.lessonBlock,
+        (f: any, fns: any) => fns.eq(f.lessonId, lessonId),
+      );
       for (const block of dto.blocks) {
         await this.prisma.orm.public.LessonBlock.create({
           id: crypto.randomUUID(),
